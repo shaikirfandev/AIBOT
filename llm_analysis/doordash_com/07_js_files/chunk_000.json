@@ -1,0 +1,8 @@
+{
+  "chunk_index": 0,
+  "chunk_hash": "8ebe05f4da7a",
+  "llm_response": "1. **Finding**: Hardcoded API endpoint found\n2. **URL/Link**: https://www.doordash.com/cdn-cgi/challenge-platform/scripts/jsd/main.js\n3. **Why interesting**: Exposing internal API endpoints can lead to unauthorized access and data breaches\n4. **Next step**: Verify if the endpoint is indeed exposed and check for any sensitive data or misconfigurations\n5. **Severity**: MEDIUM",
+  "tokens_eval": 91,
+  "duration_s": 9.52,
+  "success": true
+}

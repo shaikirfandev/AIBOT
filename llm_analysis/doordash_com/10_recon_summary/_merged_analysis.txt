@@ -1,0 +1,9 @@
+LLM Analysis: 10_recon_summary.txt
+==================================================
+
+--- Chunk 1 ---
+1. **Finding**: Subdomain discovery
+2. **URL/Link**: doordash.com
+3. **Why interesting**: Subdomains could have different security configurations and may require deeper testing.
+4. **Next step**: Perform manual tests on each subdomain to check for unique security configurations.
+5. **Severity**: MEDIUM

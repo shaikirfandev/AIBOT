@@ -1,0 +1,8 @@
+{
+  "chunk_index": 0,
+  "chunk_hash": "2d89e2c47fbd",
+  "llm_response": "**Finding**: Missing HSTS, CSP, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy, CORS, Cookies, Server, and X-Powered-By security headers\n**URL/Link**: https://www. doordash. com\n**Why interesting**: Lack of security headers can lead to various security vulnerabilities such as content injection, clickjacking, and XSS attacks.\n**Next step**: Verify if these missing headers are indeed required for the website and manually check for potential vulnerabilities.\n**Severity**: HIGH",
+  "tokens_eval": 121,
+  "duration_s": 26.33,
+  "success": true
+}

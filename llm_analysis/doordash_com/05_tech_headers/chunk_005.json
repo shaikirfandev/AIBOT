@@ -1,0 +1,8 @@
+{
+  "chunk_index": 5,
+  "chunk_hash": "ccef42fa1223",
+  "llm_response": "**Finding**: Missing HTTP Strict Transport Security (HSTS) Preload\n**URL/Link**: https://api.doorDash.com\n**Why interesting**: HSTS preload prevents downgrades to non-secure connections, protecting against man-in-the-middle attacks.\n**Next step**: Check if the site is using HSTS but not on the preload list, or if it's not using HSTS at all.\n**Severity**: HIGH",
+  "tokens_eval": 87,
+  "duration_s": 16.79,
+  "success": true
+}

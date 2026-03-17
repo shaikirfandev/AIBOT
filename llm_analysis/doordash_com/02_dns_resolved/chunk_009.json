@@ -1,0 +1,8 @@
+{
+  "chunk_index": 9,
+  "chunk_hash": "b786c5f98ba7",
+  "llm_response": "**Finding**: Internal IP addresses are found in the DNS resolution data.\n**URL/Link**: N/A\n**Why interesting**: Internal IPs can sometimes be a sign of hidden or unprotected services.\n**Next step**: Investigate further to determine if any of these IPs are hosting sensitive services.\n**Severity**: MEDIUM",
+  "tokens_eval": 64,
+  "duration_s": 33.48,
+  "success": true
+}

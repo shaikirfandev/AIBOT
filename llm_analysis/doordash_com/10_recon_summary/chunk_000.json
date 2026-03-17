@@ -1,0 +1,8 @@
+{
+  "chunk_index": 0,
+  "chunk_hash": "d4ec298d7a90",
+  "llm_response": "1. **Finding**: Subdomain discovery\n2. **URL/Link**: doordash.com\n3. **Why interesting**: Subdomains could have different security configurations and may require deeper testing.\n4. **Next step**: Perform manual tests on each subdomain to check for unique security configurations.\n5. **Severity**: MEDIUM",
+  "tokens_eval": 68,
+  "duration_s": 16.67,
+  "success": true
+}

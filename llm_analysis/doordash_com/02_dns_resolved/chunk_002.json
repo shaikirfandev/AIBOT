@@ -1,0 +1,8 @@
+{
+  "chunk_index": 2,
+  "chunk_hash": "8794d301329b",
+  "llm_response": "1. **Finding**: Internal IP addresses and cloud services exposed.\n2. **URL/Link**: doordash.com\n3. **Why interesting**: Exposing internal IPs and cloud services can lead to unauthorized access and data breaches.\n4. **Next step**: Perform manual tests to verify the exposed IPs and services.\n5. **Severity**: HIGH",
+  "tokens_eval": 72,
+  "duration_s": 34.82,
+  "success": true
+}

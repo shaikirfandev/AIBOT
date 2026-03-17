@@ -1,0 +1,8 @@
+{
+  "chunk_index": 0,
+  "chunk_hash": "a2296300c2d5",
+  "llm_response": "1. **Finding**: Multiple internal IPs, cloud services, and CDNs found\n2. **URL/Link**: doordash.com\n3. **Why interesting**: These could be potential attack vectors or points of vulnerability\n4. **Next step**: Perform deeper manual testing on the identified endpoints\n5. **Severity**: MEDIUM",
+  "tokens_eval": 69,
+  "duration_s": 41.05,
+  "success": true
+}

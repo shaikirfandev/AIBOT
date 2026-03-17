@@ -1,0 +1,8 @@
+{
+  "chunk_index": 7,
+  "chunk_hash": "da6a17361f7d",
+  "llm_response": "**Finding**: Internal IP addresses of doordash.com's subdomains\n**URL/Link**: doordash.com\n**Why interesting**: Exposing internal IPs can lead to unauthorized access to internal systems.\n**Next step**: Perform manual tests to verify the existence of these IPs in the target's infrastructure.\n**Severity**: MEDIUM",
+  "tokens_eval": 68,
+  "duration_s": 33.36,
+  "success": true
+}

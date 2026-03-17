@@ -1,0 +1,8 @@
+{
+  "chunk_index": 14,
+  "chunk_hash": "247d70b755ee",
+  "llm_response": "1. **Finding**: Internal IP addresses are visible, suggesting potential misconfigurations or exposed endpoints.\n2. **URL/Link**: risk-static. doordash. com\n3. **Why interesting**: Exposing internal IPs can allow attackers to scan for vulnerabilities and gain unauthorized access.\n4. **Next step**: Perform manual tests to verify if these IPs are indeed exposed and check for potential vulnerabilities.\n5. **Severity**: MEDIUM",
+  "tokens_eval": 90,
+  "duration_s": 34.49,
+  "success": true
+}

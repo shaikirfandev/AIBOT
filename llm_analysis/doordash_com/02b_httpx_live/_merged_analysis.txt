@@ -1,0 +1,122 @@
+LLM Analysis: 02b_httpx_live.txt
+==================================================
+
+--- Chunk 1 ---
+**Finding**: Cloudflare Bot Management, HSTS, HTTP/3
+**URL/Link**: https://231d4ebadb9dacea31adc6bb12b6080c.doordash.com
+**Why interesting**: Cloudflare Bot Management indicates potential bot attacks, HSTS indicates secure connections, and HTTP/3 suggests support for the latest HTTP protocol, all of which can have security implications.
+**Next step**: Check for any unusual bot behavior or attempts to exploit vulnerabilities.
+**Severity**: MEDIUM
+
+--- Chunk 2 ---
+1. **Finding**: Exposed endpoints with no authentication or authorization
+2. **URL/Link**: http://bid47l6.email.doordash.com
+3. **Why interesting**: An attacker could use this endpoint to gain unauthorized access to user accounts or sensitive data.
+4. **Next step**: Perform manual tests to verify the lack of authentication or authorization and identify potential attack vectors.
+5. **Severity**: HIGH
+
+1. **Finding**: Cloudflare bot management and HSTS configuration
+2. **URL/Link**: https://careers.doordash.com, https://app.doordash.com, https://creator.doordash.com, https://dasher-help. doordash.com, https://dashmart- gateway. doordash.com, https://deliveringgood. doordash.com
+3. **Why interesting**: These endpoints are protected by Cloudflare bot management and HSTS, which can prevent certain types of attacks.
+4. **Next step**: Perform manual tests to verify the effectiveness of the bot management and HSTS configurations.
+5. **Severity**: MEDIUM
+
+1. **Finding**: Unsecured Amazon S3 buckets
+2. **URL/Link**: https://canary-cdn. doordash.com, https://cdn. doordash.com, https://common. doordash.com, https://dashmart- cr- photo-asset. doordash.com
+3. **Why interesting**: An attacker could potentially access sensitive data stored in these buckets.
+4. **Next step**: Perform manual tests to verify the existence and contents of these unsecured S3 buckets.
+5. **Severity**: HIGH
+
+1. **Finding**: Misconfigured Framer sites
+2. **URL/Link**: https://crm. doordash.com, https://app. doordash.com
+3. **Why interesting**: Misconfigured Framer sites can lead to security vulnerabilities, such as cross-site scripting (XSS) attacks.
+4. **Next step**: Perform manual tests to verify the misconfiguration and identify potential attack vectors.
+5. **Severity**: MEDIUM
+
+--- Chunk 3 ---
+**Finding**: Exposed endpoints with HTTP/3 and HSTS
+**URL/Link**: https://dashmart-**cr-**photo-**asset.**doordash.**com, https://developer.**doordash.**com, https://ddlwms.**doordash.**com, https://dispatch.**doordash.**com, https://drive-**onboarding.**doordash.**com, https://drive-**asset.**doordash.**com, https://drs.**doordash.**com, https://drive-**billing.**doordash.**com, https://dynamic-**values-**edge-**service.**doordash.**com, https://dev5.**doordash.**com, https://driver.**doordash.**com, https://dx-**drive-**equipment.**doordash.**com, https://dx-**delivery-**fulfillment-**photos.**doordash.**com, https://geo.**doordash.**com, https://identity.**doordash.**com, https://go.**info.**doordash.**com, https://insights.**doordash.**com
+**Why interesting**: These endpoints may have misconfigured HTTP/3 and HSTS, leading to potential security issues.
+**Next step**: Perform manual tests to verify the presence of these misconfigurations.
+**Severity**: MEDIUM
+
+--- Chunk 4 ---
+1. **Finding**: Exposed endpoint with no authentication or authorization checks
+   **URL/Link**: https://invoicing-platform.doordash.com
+   **Why interesting**: An attacker can use this endpoint to perform unauthorized actions or access sensitive data.
+   **Next step**: Test if the endpoint requires authentication and if it has proper authorization checks.
+   **Severity**: HIGH
+
+2. **Finding**: Potential information disclosure due to misconfiguration
+   **URL/Link**: http://mail.doordash.com
+   **Why interesting**: The server is returning the '301 Moved' response, which might indicate a misconfigured redirect.
+   **Next step**: Check if the original URL should be redirecting to another URL and if the redirect is secure.
+   **Severity**: MEDIUM
+
+3. **Finding**: Absence of HSTS protection for some subdomains
+   **URL/Link**: https://ns1.doordash.com, https://ns2.doordash.com
+   **Why interesting**: The absence of HSTS protection can lead to downgrading of HTTPS connections to plain HTTP, allowing attackers to intercept sensitive data.
+   **Next step**: Verify if HSTS protection is missing for these subdomains and if so, implement it.
+   **Severity**: HIGH
+
+4. **Finding**: Weak security implementation on some endpoints
+   **URL/Link**: https://mx.info.doordash.com, https://mx.doordash.com, https://ocl.doordash.com, https://onlineordering.doordash.com, https://openapi.doordash.com, https://otel-mobile.doordash.com
+   **Why interesting**: These endpoints are using outdated or weak security implementations, which can be exploited by attackers.
+   **Next step**: Analyze the security implementation of each endpoint and update them to the latest standards.
+   **Severity**: MEDIUM
+
+5. **Finding**: Lack of proper API key handling
+   **URL/Link**: https://handbook.doordash.com
+   **Why interesting**: The absence of proper API key handling can lead to unauthorized access to the API.
+   **Next step**: Test the API key handling process and ensure it is secure and properly implemented.
+   **Severity**: HIGH
+
+--- Chunk 5 ---
+1. **Finding**: HSTS and HTTP/3 protocols detected on multiple endpoints.
+2. **URL/Link**: https://otel-mobile.doordash.com, https://page-service-qa.doordash.com, https://page-service.doordash.com, https://prism.doordash.com, https://static-edge.doordash.com, https://partnerships.doordash.com
+3. **Why interesting**: HSTS (HTTP Strict Transport Security) helps protect against protocol downgrade attacks, while HTTP/3 improves security and performance. Their presence suggests a commitment to secure communication.
+4. **Next step**: Verify if HSTS and HTTP/3 are properly implemented and functioning as expected.
+5. **Severity**: MEDIUM
+
+--- Chunk 6 ---
+1. **Finding**: Amazon S3 and CloudFront misconfiguration
+   **URL/Link**: raphy. doordash. com
+   **Why interesting**: Exposed sensitive data and potential unauthorized access
+   **Next step**: Manual test to verify the misconfiguration and check for exposed sensitive data
+   **Severity**: HIGH
+
+2. **Finding**: HSTS violation
+   **URL/Link**: https://vgs- payment. doordash. com
+   **Why interesting**: Lack of HSTS protection can lead to HTTP injection attacks
+   **Next step**: Manual test to verify the absence of HSTS protection
+   **Severity**: MEDIUM
+
+3. **Finding**: Cloudflare Bot Management misconfiguration
+   **URL/Link**: https://vgs- storefront. doordash. com
+   **Why interesting**: Misconfigured Cloudflare Bot Management can lead to DoS attacks
+   **Next step**: Manual test to verify the misconfiguration and check for DoS vulnerability
+   **Severity**: MEDIUM
+
+4. **Finding**: Insecure Squarespace Commerce configuration
+   **URL/Link**: https://www. deliveringgood. doordash. com
+   **Why interesting**: Exposed payment information and potential unauthorized access
+   **Next step**: Manual test to verify the insecure Squarespace Commerce configuration and check for exposed payment information
+   **Severity**: HIGH
+
+5. **Finding**: Missing HSTS protection
+   **URL/Link**: https://www. doordash. com
+   **Why interesting**: Lack of HSTS protection can lead to HTTP injection attacks
+   **Next step**: Manual test to verify the absence of HSTS protection
+   **Severity**: MEDIUM
+
+6. **Finding**: Cloudflare Bot Management misconfiguration
+   **URL/Link**: https://wk. doordash. com
+   **Why interesting**: Misconfigured Cloudflare Bot Management can lead to DoS attacks
+   **Next step**: Manual test to verify the misconfiguration and check for DoS vulnerability
+   **Severity**: MEDIUM
+
+7. **Finding**: Missing HSTS protection
+   **URL/Link**: http:// trust. doordash. com
+   **Why interesting**: Lack of HSTS protection can lead to HTTP injection attacks
+   **Next step**: Manual test to verify the absence of HSTS protection
+   **Severity**: MEDIUM

@@ -1,0 +1,8 @@
+{
+  "chunk_index": 2,
+  "chunk_hash": "febd89028c4f",
+  "llm_response": "**Finding**: Missing HTTP Strict Transport Security (HSTS) Preload\n**URL/Link**: https://about.doordash.com, https://admin-gateway.doordash.com, https://ads.doordash.com\n**Why interesting**: HSTS preload prevents man-in-the-middle attacks by ensuring all communication to the site is encrypted. Missing it can lead to downgrade attacks.\n**Next step**: Verify if HSTS preload setting is missing from the website.\n**Severity**: HIGH",
+  "tokens_eval": 101,
+  "duration_s": 25.49,
+  "success": true
+}

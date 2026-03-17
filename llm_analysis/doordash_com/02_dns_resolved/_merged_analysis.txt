@@ -1,0 +1,186 @@
+LLM Analysis: 02_dns_resolved.txt
+==================================================
+
+--- Chunk 1 ---
+1. **Finding**: Multiple internal IPs, cloud services, and CDNs found
+2. **URL/Link**: doordash.com
+3. **Why interesting**: These could be potential attack vectors or points of vulnerability
+4. **Next step**: Perform deeper manual testing on the identified endpoints
+5. **Severity**: MEDIUM
+
+--- Chunk 2 ---
+**Finding**: Internal IP addresses and cloud service IPs found
+**URL/Link**: N/A
+**Why interesting**: These could be potential targets for further reconnaissance or attacks
+**Next step**: Perform manual tests to verify the existence of these IPs and their relation to the target domain
+**Severity**: MEDIUM
+
+--- Chunk 3 ---
+1. **Finding**: Internal IP addresses and cloud services exposed.
+2. **URL/Link**: doordash.com
+3. **Why interesting**: Exposing internal IPs and cloud services can lead to unauthorized access and data breaches.
+4. **Next step**: Perform manual tests to verify the exposed IPs and services.
+5. **Severity**: HIGH
+
+--- Chunk 4 ---
+**Finding**: Internal IP addresses and cloud services exposed.
+**URL/Link**: mail.doordash.com, 7kx9f.doordash.com, api. doordash.com, careers.doordash.com, drive-booking. doordash.com, business.doordash.com, identity.doordash.com
+**Why interesting**: Exposing internal IPs and cloud services can lead to unauthorized access and data breaches.
+**Next step**: Verify if these IPs and services are properly secured and accessible only to authorized users.
+**Severity**: MEDIUM
+
+--- Chunk 5 ---
+**Finding:** Internal IP addresses of doordash.com's subdomains.
+**URL/Link:** business.doordash.com, identity. doordash.com, common. doordash.com, ns1. doordash.com, dev5. doordash.com, merchant. doordash.com, deliveringgood. doordash.com, links. doordash.com, email. internalcomms. doordash.com, o2. merchant- ip. mail. doordash.com
+**Why interesting:** Exposing internal IPs can allow attackers to more easily target and exploit vulnerabilities within the internal network.
+**Next step:** Verify if these IPs are properly secured and only accessible from trusted networks.
+**Severity:** MEDIUM
+
+--- Chunk 6 ---
+1. **Finding**: Multiple internal IPs and CNAME records found for subdomains of doordash.com
+2. **URL/Link**: links. doordash.com, creator. doordash.com, email. recruiting. doordash.com, internalcareers. doordash.com, api- drive. doordash.com, driver. doordash.com, ns2. doordash.com, otel- mobile. doordash.com
+3. **Why interesting**: These internal IPs and CNAME records could potentially lead to unauthorized access to internal systems or resources if exploited.
+4. **Next step**: Perform deeper manual testing on these subdomains to identify any potential vulnerabilities or misconfigurations.
+5. **Severity**: MEDIUM
+
+--- Chunk 7 ---
+**Finding**: Internal IP addresses are exposed, potentially allowing for easier access to internal systems.
+**URL/Link**: ns2.doordash.com has an internal IP of 162.159.7.107
+**Why interesting**: This could allow attackers to access internal systems more easily.
+**Next step**: Verify if these IPs are indeed internal and if they contain sensitive information.
+**Severity**: MEDIUM
+
+--- Chunk 8 ---
+**Finding**: Internal IP addresses of doordash.com's subdomains
+**URL/Link**: doordash.com
+**Why interesting**: Exposing internal IPs can lead to unauthorized access to internal systems.
+**Next step**: Perform manual tests to verify the existence of these IPs in the target's infrastructure.
+**Severity**: MEDIUM
+
+--- Chunk 9 ---
+1. **Finding**: Internal IP addresses and cloud service IPs found
+2. **URL/Link**: lwms.doordash.com, pointofsale.doordash. com, prism. doordash. com, dasher- dropoff- photos- handoffs. doordash. com, onlineordering. doordash. com, rbff. doordash. com, www. doordash. com, app. doordash. com
+3. **Why interesting**: These IPs and cloud services could potentially be used for internal communication or data storage, which might lead to unauthorized access or data leakage if not properly secured.
+4. **Next step**: Perform manual tests to verify the existence of these IPs and services, and check for proper security measures in place.
+5. **Severity**: MEDIUM
+
+--- Chunk 10 ---
+**Finding**: Internal IP addresses are found in the DNS resolution data.
+**URL/Link**: N/A
+**Why interesting**: Internal IPs can sometimes be a sign of hidden or unprotected services.
+**Next step**: Investigate further to determine if any of these IPs are hosting sensitive services.
+**Severity**: MEDIUM
+
+--- Chunk 11 ---
+1. **Finding**: work.doordash.com has multiple internal IPs.
+2. **URL/Link**: work.doordash.com
+3. **Why interesting**: Multiple internal IPs could indicate a misconfiguration or an internal network exposed to the internet.
+4. **Next step**: Perform a manual test to verify the IP addresses and check for potential misconfigurations.
+5. **Severity**: MEDIUM
+
+1. **Finding**: canary-cdn. doordash. com has multiple internal IPs.
+2. **URL/Link**: canary-cdn. doordash. com
+3. **Why interesting**: Multiple internal IPs could indicate a misconfiguration or an internal network exposed to the internet.
+4. **Next step**: Perform a manual test to verify the IP addresses and check for potential misconfigurations.
+5. **Severity**: MEDIUM
+
+1. **Finding**: bx. info. doordash. com has multiple internal IPs.
+2. **URL/Link**: bx. info. doordash. com
+3. **Why interesting**: Multiple internal IPs could indicate a misconfiguration or an internal network exposed to the internet.
+4. **Next step**: Perform a manual test to verify the IP addresses and check for potential misconfigurations.
+5. **Severity**: MEDIUM
+
+1. **Finding**: work. doordash. com has multiple CNAME records to external domains.
+2. **URL/Link**: work. doordash. com
+3. **Why interesting**: Multiple CNAME records to external domains could indicate a complex DNS setup or potential DNS hijacking.
+4. **Next step**: Perform a manual test to verify the CNAME records and check for potential DNS hijacking or misconfigurations.
+5. **Severity**: MEDIUM
+
+1. **Finding**: typography. doordash. com has multiple internal IPs.
+2. **URL/Link**: typography. doordash. com
+3. **Why interesting**: Multiple internal IPs could indicate a misconfiguration or an internal network exposed to the internet.
+4. **Next step**: Perform a manual test to verify the IP addresses and check for potential misconfigurations.
+5. **Severity**: MEDIUM
+
+1. **Finding**: ocl. doordash. com has multiple internal IPs.
+2. **URL/Link**: ocl. doordash. com
+3. **Why interesting**: Multiple internal IPs could indicate a misconfiguration or an internal network exposed to the internet.
+4. **Next step**: Perform a manual test to verify the IP addresses and check for potential misconfigurations.
+5. **Severity**: MEDIUM
+
+--- Chunk 12 ---
+**Finding**: Internal IP addresses found for subdomains.
+**URL/Link**: typography.doordash.com, typography. doordash. com, support. doordash. com, tracksg. doordash. com, trackbz. doordash. com
+**Why interesting**: Exposing internal IPs can lead to unauthorized access.
+**Next step**: Verify if these IPs are properly firewalled and investigate any exposed services.
+**Severity**: MEDIUM
+
+--- Chunk 13 ---
+1. **Finding**: Internal IP addresses could potentially be used for unauthorized access
+   **URL/Link**: N/A
+   **Why interesting**: Exposing internal IPs can lead to unauthorized access to internal systems
+   **Next step**: Investigate internal systems access controls
+   **Severity**: HIGH
+
+2. **Finding**: Cloud service usage could indicate data storage or processing
+   **URL/Link**: N/A
+   **Why interesting**: Cloud service usage might indicate data storage or processing, which could be a security concern if not properly secured
+   **Next step**: Review cloud service access controls and data encryption
+   **Severity**: MEDIUM
+
+3. **Finding**: Sensitive data leaks
+   **URL/Link**: N/A
+   **Why interesting**: Sensitive data leaks can lead to identity theft or financial fraud
+   **Next step**: Review data leak prevention measures
+   **Severity**: CRITICAL
+
+4. **Finding**: Unusual CNAME records might indicate phishing or domain hijacking
+   **URL/Link**: N/A
+   **Why interesting**: Unusual CNAME records could indicate phishing or domain hijacking, which can lead to data breaches or reputation damage
+   **Next step**: Review domain ownership and validate CNAME records
+   **Severity**: HIGH
+
+5. **Finding**: Misconfigured endpoints could lead to unauthorized access
+   **URL/Link**: N/A
+   **Why interesting**: Misconfigured endpoints can lead to unauthorized access and data breaches
+   **Next step**: Review endpoint configurations and apply necessary security patches
+   **Severity**: CRITICAL
+
+--- Chunk 14 ---
+1. **Finding**: www.merchanthelp.doordash.com has cloud-based CNAME record pointing to djtlkjaepu653.cloudfront.net
+   **URL/Link**: www.merchanthelp.doordash.com -> djtlkjaepu653.cloudfront.net
+   **Why interesting**: Cloud-based CNAME records can lead to unsecured endpoints
+   **Next step**: Perform manual tests to verify the security of the endpoints
+   **Severity**: MEDIUM
+
+2. **Finding**: Trackdbz. doordash.com has multiple A records pointing to different IPs
+   **URL/Link**: trackdbz. doordash.com -> 18.161.229.6, 18.161.229.112, 18.161.229.118, 18.161.229.119
+   **Why interesting**: Multiple A records can indicate potential load balancing or IP rotation, which might be a security control
+   **Next step**: Perform manual tests to verify the security of the endpoints
+   **Severity**: MEDIUM
+
+3. **Finding**: Content. doordash.com has a CNAME record pointing to doordash. tenant-services. seismic. com
+   **URL/Link**: content. doordash. com -> doordash. tenant-services. seismic. com
+   **Why interesting**: Unusual CNAME records might lead to unexpected endpoints
+   **Next step**: Perform manual tests to verify the security of the endpoints
+   **Severity**: MEDIUM
+
+4. **Finding**: Risk-static. doordash.com has multiple A records pointing to different IPs
+   **URL/Link**: risk-static. doordash. com -> 3.160.188.43, 3.160.188.128, 3.160.188.114, 3.160.188.72
+   **Why interesting**: Multiple A records can indicate potential load balancing or IP rotation, which might be a security control
+   **Next step**: Perform manual tests to verify the security of the endpoints
+   **Severity**: MEDIUM
+
+--- Chunk 15 ---
+1. **Finding**: Internal IP addresses are visible, suggesting potential misconfigurations or exposed endpoints.
+2. **URL/Link**: risk-static. doordash. com
+3. **Why interesting**: Exposing internal IPs can allow attackers to scan for vulnerabilities and gain unauthorized access.
+4. **Next step**: Perform manual tests to verify if these IPs are indeed exposed and check for potential vulnerabilities.
+5. **Severity**: MEDIUM
+
+--- Chunk 16 ---
+1. **Finding**: vgs- payment. Doordash.com has an internal IP address.
+2. **URL/Link**: vgs- payment. Doordash.com
+3. **Why interesting**: Exposing internal IP addresses could allow attackers to bypass security controls and gain direct access to the server.
+4. **Next step**: Verify if the server has proper security measures and if the IP address is still accessible.
+5. **Severity**: MEDIUM

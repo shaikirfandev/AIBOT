@@ -1,0 +1,8 @@
+{
+  "chunk_index": 3,
+  "chunk_hash": "f286b62e53c0",
+  "llm_response": "1. **Finding**: Missing HTTP Strict Transport Security (HSTS) Preload for subdomains.\n   **URL/Link**: https://ads.doordash.com, https://ads.info.doordash.com, https://advertising. doordash. com, https://aichat. doordash. com\n   **Why interesting**: HSTS preload helps protect against SSL stripping attacks by ensuring that all communication to the domain is always over HTTPS.\n   **Next step**: Verify if all subdomains have HSTS preload configured.\n   **Severity**: HIGH",
+  "tokens_eval": 119,
+  "duration_s": 27.47,
+  "success": true
+}

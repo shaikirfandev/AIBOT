@@ -1,0 +1,8 @@
+{
+  "chunk_index": 1,
+  "chunk_hash": "c15ef9ad3d17",
+  "llm_response": "**Finding**: Internal IP addresses and cloud service IPs found\n**URL/Link**: N/A\n**Why interesting**: These could be potential targets for further reconnaissance or attacks\n**Next step**: Perform manual tests to verify the existence of these IPs and their relation to the target domain\n**Severity**: MEDIUM",
+  "tokens_eval": 63,
+  "duration_s": 33.06,
+  "success": true
+}

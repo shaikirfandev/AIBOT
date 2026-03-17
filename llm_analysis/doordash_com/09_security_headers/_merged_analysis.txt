@@ -1,0 +1,16 @@
+LLM Analysis: 09_security_headers.txt
+==================================================
+
+--- Chunk 1 ---
+**Finding**: Missing HSTS, CSP, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy, CORS, Cookies, Server, and X-Powered-By security headers
+**URL/Link**: https://www. doordash. com
+**Why interesting**: Lack of security headers can lead to various security vulnerabilities such as content injection, clickjacking, and XSS attacks.
+**Next step**: Verify if these missing headers are indeed required for the website and manually check for potential vulnerabilities.
+**Severity**: HIGH
+
+--- Chunk 2 ---
+**Finding**: Missing HSTS, CSP, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy, CORS, Cookies, Server, and X-Powered-By security headers
+**URL/Link**: https://ads.doordash.com
+**Why interesting**: Lack of security headers can lead to various attacks such as XSS, CSRF, and clickjacking
+**Next step**: Verify if these headers can be added and test the effectiveness of each
+**Severity**: HIGH

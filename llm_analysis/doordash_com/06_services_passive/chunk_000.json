@@ -1,0 +1,8 @@
+{
+  "chunk_index": 0,
+  "chunk_hash": "fdb2acbac260",
+  "llm_response": "1. **Finding**: Port 80 (http) is open with X-Frame-Options: SAMEORIGIN and Server: cloudflare\n   - **URL/Link**: http://doordash.com:80/\n   - **Why interesting**: It may allow clickjacking attacks.\n   - **Next step**: Test for clickjacking vulnerability by opening the link in an iframe.\n   - **Severity**: MEDIUM\n\n2. **Finding**: Port 443 (https) is open with x-frame-options: SAMEORIGIN and Server: cloudflare\n   - **URL/Link**: https://doordash.com:443/\n   - **Why interesting**: It may allow clickjacking attacks over a secure connection.\n   - **Next step**: Test for clickjacking vulnerability by opening the link in an iframe.\n   - **Severity**: MEDIUM\n\n3. **Finding**: Port 8080 (http) is open with X-Frame-Options: SAMEORIGIN and Server: cloudflare\n   - **URL/Link**: http://doordash.com:8080/\n   - **Why interesting**: It may allow clickjacking attacks.\n   - **Next step**: Test for clickjacking vulnerability by opening the link in an iframe.\n   - **Severity**: MEDIUM\n\n4. **Finding**: Port 8443 (https) is open with x-frame-options: SAMEORIGIN and Server: cloudflare\n   - **URL/Link**: https://doordash.com:8443/\n   - **Why interesting**: It may allow clickjacking attacks over a secure connection.\n   - **Next step**: Test for clickjacking vulnerability by opening the link in an iframe.\n   - **Severity**: MEDIUM",
+  "tokens_eval": 358,
+  "duration_s": 31.83,
+  "success": true
+}

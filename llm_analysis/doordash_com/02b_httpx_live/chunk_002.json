@@ -1,0 +1,8 @@
+{
+  "chunk_index": 2,
+  "chunk_hash": "ffa5579fc691",
+  "llm_response": "**Finding**: Exposed endpoints with HTTP/3 and HSTS\n**URL/Link**: https://dashmart-**cr-**photo-**asset.**doordash.**com, https://developer.**doordash.**com, https://ddlwms.**doordash.**com, https://dispatch.**doordash.**com, https://drive-**onboarding.**doordash.**com, https://drive-**asset.**doordash.**com, https://drs.**doordash.**com, https://drive-**billing.**doordash.**com, https://dynamic-**values-**edge-**service.**doordash.**com, https://dev5.**doordash.**com, https://driver.**doordash.**com, https://dx-**drive-**equipment.**doordash.**com, https://dx-**delivery-**fulfillment-**photos.**doordash.**com, https://geo.**doordash.**com, https://identity.**doordash.**com, https://go.**info.**doordash.**com, https://insights.**doordash.**com\n**Why interesting**: These endpoints may have misconfigured HTTP/3 and HSTS, leading to potential security issues.\n**Next step**: Perform manual tests to verify the presence of these misconfigurations.\n**Severity**: MEDIUM",
+  "tokens_eval": 322,
+  "duration_s": 51.44,
+  "success": true
+}

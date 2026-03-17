@@ -1,0 +1,8 @@
+{
+  "chunk_index": 15,
+  "chunk_hash": "86e6101fbeac",
+  "llm_response": "1. **Finding**: vgs- payment. Doordash.com has an internal IP address.\n2. **URL/Link**: vgs- payment. Doordash.com\n3. **Why interesting**: Exposing internal IP addresses could allow attackers to bypass security controls and gain direct access to the server.\n4. **Next step**: Verify if the server has proper security measures and if the IP address is still accessible.\n5. **Severity**: MEDIUM",
+  "tokens_eval": 94,
+  "duration_s": 27.37,
+  "success": true
+}

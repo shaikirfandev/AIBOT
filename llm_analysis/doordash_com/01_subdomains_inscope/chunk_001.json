@@ -1,0 +1,8 @@
+{
+  "chunk_index": 1,
+  "chunk_hash": "49585cbbd7bc",
+  "llm_response": "**Finding**: Unsecured subdomains with potential misconfigurations or sensitive data exposure\n**URL/Link**: partnerships.doordash.com, people.doordash.com, prism.doordash.com, projectimpact.doordash.com, etc.\n**Why interesting**: These subdomains may have misconfigurations or expose sensitive data, posing a security risk.\n**Next step**: Perform manual tests on these subdomains to check for potential misconfigurations or sensitive data exposure.\n**Severity**: MEDIUM",
+  "tokens_eval": 100,
+  "duration_s": 16.7,
+  "success": true
+}

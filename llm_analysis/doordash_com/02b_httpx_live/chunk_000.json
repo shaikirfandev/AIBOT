@@ -1,0 +1,8 @@
+{
+  "chunk_index": 0,
+  "chunk_hash": "82edcca639c8",
+  "llm_response": "**Finding**: Cloudflare Bot Management, HSTS, HTTP/3\n**URL/Link**: https://231d4ebadb9dacea31adc6bb12b6080c.doordash.com\n**Why interesting**: Cloudflare Bot Management indicates potential bot attacks, HSTS indicates secure connections, and HTTP/3 suggests support for the latest HTTP protocol, all of which can have security implications.\n**Next step**: Check for any unusual bot behavior or attempts to exploit vulnerabilities.\n**Severity**: MEDIUM",
+  "tokens_eval": 106,
+  "duration_s": 31.59,
+  "success": true
+}

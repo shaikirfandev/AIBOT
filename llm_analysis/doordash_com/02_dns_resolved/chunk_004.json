@@ -1,0 +1,8 @@
+{
+  "chunk_index": 4,
+  "chunk_hash": "8ba35e9f2de0",
+  "llm_response": "**Finding:** Internal IP addresses of doordash.com's subdomains.\n**URL/Link:** business.doordash.com, identity. doordash.com, common. doordash.com, ns1. doordash.com, dev5. doordash.com, merchant. doordash.com, deliveringgood. doordash.com, links. doordash.com, email. internalcomms. doordash.com, o2. merchant- ip. mail. doordash.com\n**Why interesting:** Exposing internal IPs can allow attackers to more easily target and exploit vulnerabilities within the internal network.\n**Next step:** Verify if these IPs are properly secured and only accessible from trusted networks.\n**Severity:** MEDIUM",
+  "tokens_eval": 151,
+  "duration_s": 41.66,
+  "success": true
+}

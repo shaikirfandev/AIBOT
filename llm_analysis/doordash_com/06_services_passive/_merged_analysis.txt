@@ -1,0 +1,27 @@
+LLM Analysis: 06_services_passive.txt
+==================================================
+
+--- Chunk 1 ---
+1. **Finding**: Port 80 (http) is open with X-Frame-Options: SAMEORIGIN and Server: cloudflare
+   - **URL/Link**: http://doordash.com:80/
+   - **Why interesting**: It may allow clickjacking attacks.
+   - **Next step**: Test for clickjacking vulnerability by opening the link in an iframe.
+   - **Severity**: MEDIUM
+
+2. **Finding**: Port 443 (https) is open with x-frame-options: SAMEORIGIN and Server: cloudflare
+   - **URL/Link**: https://doordash.com:443/
+   - **Why interesting**: It may allow clickjacking attacks over a secure connection.
+   - **Next step**: Test for clickjacking vulnerability by opening the link in an iframe.
+   - **Severity**: MEDIUM
+
+3. **Finding**: Port 8080 (http) is open with X-Frame-Options: SAMEORIGIN and Server: cloudflare
+   - **URL/Link**: http://doordash.com:8080/
+   - **Why interesting**: It may allow clickjacking attacks.
+   - **Next step**: Test for clickjacking vulnerability by opening the link in an iframe.
+   - **Severity**: MEDIUM
+
+4. **Finding**: Port 8443 (https) is open with x-frame-options: SAMEORIGIN and Server: cloudflare
+   - **URL/Link**: https://doordash.com:8443/
+   - **Why interesting**: It may allow clickjacking attacks over a secure connection.
+   - **Next step**: Test for clickjacking vulnerability by opening the link in an iframe.
+   - **Severity**: MEDIUM

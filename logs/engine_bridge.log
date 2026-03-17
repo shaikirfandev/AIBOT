@@ -1,0 +1,46 @@
+[2026-03-12 21:56:40] [INFO] ╔══════════════════════════════════════════════════════════╗
+[2026-03-12 21:56:40] [INFO] ║  BBHunter Engine Bridge                                  ║
+[2026-03-12 21:56:40] [INFO] ║  Target: doordash.com                                    ║
+[2026-03-12 21:56:40] [INFO] ║  Engines: surface, scanner, analysis, payloads, assistant, reporting, learning║
+[2026-03-12 21:56:40] [INFO] ╚══════════════════════════════════════════════════════════╝
+[2026-03-12 21:56:40] [INFO] bbhunter config loaded from /home/shaik-irfan/Desktop/BugbountyHunter/config.yaml
+[2026-03-12 21:56:40] [INFO] Injected doordash.com into SafetyGate authorized targets
+[2026-03-12 21:56:40] [INFO] 
+📂 Loading recon data...
+[2026-03-12 21:56:40] [INFO] Loaded 154 assets from recon files
+[2026-03-12 21:56:40] [INFO] Loaded 126 endpoints from recon files (0 with params)
+[2026-03-12 21:56:40] [INFO] Loaded 87 LLM-extracted vulnerabilities from DB
+[2026-03-12 21:56:40] [INFO]    154 assets, 126 endpoints, 2 techs, 87 LLM vulns
+[2026-03-12 21:56:40] [INFO] ═══ ENGINE: Surface Mapping ═══
+[2026-03-12 21:56:40] [INFO]   Seeding surface mapper with 50 URLs
+[2026-03-12 21:57:06] [INFO]   ✅ Surface: 298 endpoints, 1 techs, WAF=cloudflare
+[2026-03-12 21:57:06] [INFO]   Merged: 248 new endpoints from surface → total 374
+[2026-03-12 21:57:06] [INFO] ═══ ENGINE: Vulnerability Scanner ═══
+[2026-03-12 21:57:06] [INFO]   ⚠️  Target rules prohibit automated scanners.
+[2026-03-12 21:57:06] [INFO]   Running in PASSIVE-ONLY mode (headers, CORS, info disclosure)
+[2026-03-12 21:57:06] [INFO]   Scanning 100 endpoints with ['headers', 'cors']
+[2026-03-12 21:57:42] [INFO]   ✅ Scanner: 8 findings
+[2026-03-12 21:57:42] [INFO] ═══ ENGINE: Analysis ═══
+[2026-03-12 21:57:42] [INFO]   ✅ Analysis: 8 verified (0 critical, 3 high), 0 chains
+[2026-03-12 21:57:42] [INFO] ═══ ENGINE: Payload Generation ═══
+[2026-03-12 21:57:42] [ERROR]   ✗ Payload engine error: 'PayloadEngine' object has no attribute 'generate_payloads'
+[2026-03-12 21:57:42] [INFO] ═══ ENGINE: Assistant (Attack Vector Suggestions) ═══
+[2026-03-12 21:57:42] [INFO]   ✅ Assistant: 30 attack vectors for 30 endpoints
+[2026-03-12 21:57:42] [INFO] ═══ ENGINE: Report Generation ═══
+[2026-03-12 21:57:42] [INFO]   ✅ Reports: 5 files generated
+[2026-03-12 21:57:42] [INFO] ═══ ENGINE: Learning ═══
+[2026-03-12 21:57:42] [INFO]   ✅ Learning: 8 samples, model=not yet trained
+[2026-03-12 21:57:42] [INFO] 💾 Storing engine results in DB...
+[2026-03-12 21:57:42] [INFO]   298 surface endpoints → DB
+[2026-03-12 21:57:42] [INFO]   8 verified vulnerabilities → DB
+[2026-03-12 21:57:42] [INFO]   ✅ All engine results stored in DB
+[2026-03-12 21:57:42] [INFO] 📁 Engine results saved to /home/shaik-irfan/Desktop/BugbountyHunter/data/doordash_com/engines/
+[2026-03-12 21:57:42] [INFO] 
+════════════════════════════════════════════════════════════
+[2026-03-12 21:57:42] [INFO]   ENGINE PIPELINE COMPLETE
+[2026-03-12 21:57:42] [INFO]   Duration: 62.7s (1.0m)
+[2026-03-12 21:57:42] [INFO]   Endpoints: 374 | Vulns: 8 | Chains: 0
+[2026-03-12 21:57:42] [INFO]   Payloads: 0 | Suggestions: 30
+[2026-03-12 21:57:42] [INFO]   Results: /home/shaik-irfan/Desktop/BugbountyHunter/data/doordash_com/engines/
+[2026-03-12 21:57:42] [INFO]   Reports: /home/shaik-irfan/Desktop/BugbountyHunter/reports/
+[2026-03-12 21:57:42] [INFO] ════════════════════════════════════════════════════════════

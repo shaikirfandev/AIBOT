@@ -1,0 +1,218 @@
+LLM Analysis: 05_tech_headers.txt
+==================================================
+
+--- Chunk 1 ---
+1. **Finding**: Missing HSTS Preload list
+   **URL/Link**: https://www.doorDash.com
+   **Why interesting**: HSTS Preload list helps protect against SSL stripping attacks. Missing it might expose users to such attacks.
+   **Next step**: Verify if HSTS Preload list is missing or not correctly configured.
+   **Severity**: HIGH
+
+2. **Finding**: Server header reveals Cloudflare
+   **URL/Link**: https://www.doorDash.com
+   **Why interesting**: Cloudflare is a popular CDN, but it might also introduce additional security risks if not properly configured.
+   **Next step**: Investigate if Cloudflare is configured correctly and doesn't introduce any additional security risks.
+   **Severity**: MEDIUM
+
+3. **Finding**: Absence of X-Content-Type-Options header
+   **URL/Link**: https://www.doorDash.com
+   **Why interesting**: The absence of this header can allow sniffing of the content type in transit.
+   **Next step**: Verify if the server is vulnerable to content-sniffing attacks.
+   **Severity**: MEDIUM
+
+4. **Finding**: Missing Referrer-Policy header
+   **URL/Link**: https://www.doorDash.com
+   **Why interesting**: A missing or poorly configured Referrer-Policy header can lead to information leakage.
+   **Next step**: Check if the server is leaking referral information.
+   **Severity**: MEDIUM
+
+5. **Finding**: Strict Transport Security (HSTS) configuration
+   **URL/Link**: https://www.doorDash.com
+   **Why interesting**: Incomplete or incorrect HSTS configuration can lead to downgraded connections and security risks.
+   **Next step**: Verify the HSTS configuration and ensure it's properly implemented.
+   **Severity**: MEDIUM
+
+6. **Finding**: Cookie without SameSite=None
+   **URL/Link**: https://www.doorDash.com
+   **Why interesting**: Cookies with SameSite=None are more susceptible to cross-site request forgery (CSRF) attacks.
+   **Next step**: Check if the cookie has the SameSite=None attribute and assess the risk.
+   **Severity**: MEDIUM
+
+7. **Finding**: Absence of X-Frame-Options header
+   **URL/Link**: https://www.doorDash.com
+   **Why interesting**: The absence of X-Frame-Options header can make the site vulnerable to clickjacking attacks.
+   **Next step**: Verify if the site is vulnerable to clickjacking.
+   **Severity**: MEDIUM
+
+8. **Finding**: Missing Cache-Control header
+   **URL/Link**: https://www.doorDash.com
+   **Why interesting**: A missing or poorly configured Cache-Control header can lead to security risks, such as data exposure through cache contents.
+   **Next step**: Check if the server is caching sensitive data or exposing any data through cache contents.
+   **Severity**: MEDIUM
+
+9. **Finding**: Missing Expires header
+   **URL/Link**: https://www.doorDash.com
+   **Why interesting**: A missing or poorly configured Expires header can lead to security risks, such as data exposure through cache contents.
+   **Next step**: Check if the server is caching sensitive data or exposing any data through cache contents.
+   **Severity**: MEDIUM
+
+10. **Finding**: Missing or incorrect Content-Security-Policy (CSP) header
+    **URL/Link**: https://www.doorDash.com
+    **Why interesting**: A missing or incorrect CSP header can lead to security risks, such as untrusted content loading and cross-site scripting (XSS) attacks.
+    **Next step**: Verify if the server has a proper CSP header and assess the risk.
+    **Severity**: MEDIUM
+
+11. **Finding**: Missing or incorrect X-Content-Type-Options header
+    **URL/Link**: https://www.doorDash.com
+    **Why interesting**: A missing or incorrect X-Content-Type-Options header can allow content-sniffing attacks.
+    **Next step**: Verify if the server is vulnerable to content-sniffing attacks.
+    **Severity**: MEDIUM
+
+12. **Finding**: Missing or incorrect X-Frame-Options header
+    **URL/Link**: https://www.doorDash.com
+    **Why interesting**: A missing or incorrect X-Frame-Options header can make the site vulnerable to clickjacking attacks.
+    **Next step**: Verify if the site is vulnerable to clickjacking.
+    **Severity**: MEDIUM
+
+13. **Finding**: Missing or incorrect Alt-SVC header
+    **URL/Link**: https://www.doorDash.com
+    **Why interesting**: A missing or incorrect Alt-SVC header can lead to security risks, such as SSL/TLS stripping attacks.
+    **Next step**: Verify if the server is vulnerable to SSL/TLS stripping attacks.
+    **Severity**: MEDIUM
+
+--- Chunk 2 ---
+1. **Finding**: Missing HSTS Preload list
+   **URL/Link**: N/A
+   **Why interesting**: HSTS Preload list helps protect against SSL stripping attacks. Missing it may allow attackers to downgrade HTTPS connections to unencrypted ones.
+   **Next step**: Verify if HSTS Preload list is missing in the configuration.
+   **Severity**: HIGH
+
+2. **Finding**: Server header shows Cloudflare as the server, but the target domain is not explicitly listed in Cloudflare's list of supported domains
+   **URL/Link**: N/A
+   **Why interesting**: This may indicate an unauthorized use of Cloudflare services or a misconfiguration.
+   **Next step**: Investigate if the domain is authorized for Cloudflare use and check for any unauthorized subdomains.
+   **Severity**: MEDIUM
+
+3. **Finding**: Absence of Content-Security-Policy (CSP) header
+   **URL/Link**: N/A
+   **Why interesting**: CSP helps protect against XSS attacks by specifying the domains from which the browser should permit content.
+   **Next step**: Check if CSP is configured elsewhere in the application.
+   **Severity**: MEDIUM
+
+4. **Finding**: Referrer-Policy header is set to "same-origin"
+   **URL/Link**: N/A
+   **Why interesting**: This may allow an attacker to manipulate the referrer header, leading to possible CSRF attacks.
+   **Next step**: Verify if the referrer policy is properly configured elsewhere in the application.
+   **Severity**: MEDIUM
+
+5. **Finding**: Cookie 'cf_ bm' has no expiration date
+   **URL/Link**: N/A
+   **Why interesting**: A cookie without an expiration date could persist indefinitely, potentially allowing unauthorized access.
+   **Next step**: Investigate if the cookie is set with a session-only expiration.
+   **Severity**: LOW
+
+6. **Finding**: Strict Transport Security (HSTS) header is present but not correctly configured
+   **URL/Link**: N/A
+   **Why interesting**: Incomplete HSTS configuration may allow attackers to conduct SSL stripping attacks.
+   **Next step**: Verify if HSTS is correctly configured elsewhere in the application.
+   **Severity**: HIGH
+
+7. **Finding**: X-Content-Type-Options header is set to "nosniff"
+   **URL/Link**: N/A
+   **Why interesting**: This header prevents the browser from sniffing the content type and can prevent some types of data leakage.
+   **Next step**: Verify if the X-Content-Type-Options header is correctly configured elsewhere in the application.
+   **Severity**: MEDIUM
+
+8. **Finding**: Absence of X-XSS-Protection header
+   **URL/Link**: N/A
+   **Why interesting**: This header can help mitigate the impact of reflected XSS attacks.
+   **Next step**: Verify if the X-XSS-Protection header is configured elsewhere in the application.
+   **Severity**: MEDIUM
+
+9. **Finding**: 404 error response for a valid subdomain
+   **URL/Link**: https://7kx9f.doordash.com
+   **Why interesting**: This may indicate an orphaned or misconfigured subdomain.
+   **Next step**: Investigate if the subdomain is intended to be functional and check for any configuration errors.
+   **Severity**: MEDIUM
+
+--- Chunk 3 ---
+**Finding**: Missing HTTP Strict Transport Security (HSTS) Preload
+**URL/Link**: https://about.doordash.com, https://admin-gateway.doordash.com, https://ads.doordash.com
+**Why interesting**: HSTS preload prevents man-in-the-middle attacks by ensuring all communication to the site is encrypted. Missing it can lead to downgrade attacks.
+**Next step**: Verify if HSTS preload setting is missing from the website.
+**Severity**: HIGH
+
+--- Chunk 4 ---
+1. **Finding**: Missing HTTP Strict Transport Security (HSTS) Preload for subdomains.
+   **URL/Link**: https://ads.doordash.com, https://ads.info.doordash.com, https://advertising. doordash. com, https://aichat. doordash. com
+   **Why interesting**: HSTS preload helps protect against SSL stripping attacks by ensuring that all communication to the domain is always over HTTPS.
+   **Next step**: Verify if all subdomains have HSTS preload configured.
+   **Severity**: HIGH
+
+--- Chunk 5 ---
+1. **Finding**: Missing HTTP Strict Transport Security (HSTS) Preload List
+   **URL/Link**: N/A
+   **Why interesting**: HSTS Preload List helps protect against SSL stripping attacks. Missing it may expose the website to such attacks.
+   **Next step**: Verify if HSTS is configured and if it's included in the preload list.
+   **Severity**: HIGH
+
+2. **Finding**: Lack of Content Security Policy (CSP)
+   **URL/Link**: N/A
+   **Why interesting**: CSP helps mitigate the impact of XSS attacks by specifying sources from which content can be loaded.
+   **Next step**: Check if CSP is configured and if it's properly reporting.
+   **Severity**: MEDIUM
+
+3. **Finding**: Cookie `__cf_bm` without the `SameSite=Strict` attribute
+   **URL/Link**: N/A
+   **Why interesting**: The `__cf_bm` cookie is a Cloudflare bot management cookie. Not having the `SameSite=Strict` attribute may lead to cross-site request forgery (CSRF) attacks.
+   **Next step**: Verify if the `SameSite=Strict` attribute is added to the cookie.
+   **Severity**: MEDIUM
+
+4. **Finding**: Server header indicates use of Cloudflare, but no Cloudflare SSL certificate pinning
+   **URL/Link**: N/A
+   **Why interesting**: Cloudflare SSL certificate pinning helps prevent man-in-the-middle attacks.
+   **Next step**: Check if Cloudflare SSL certificate pinning is configured.
+   **Severity**: MEDIUM
+
+5. **Finding**: Absence of X-Content-Type-Options header
+   **URL/Link**: N/A
+   **Why interesting**: The X-Content-Type-Options header prevents content-sniffing by MIME-sniffing browsers.
+   **Next step**: Verify if the X-Content-Type-Options header is configured.
+   **Severity**: MEDIUM
+
+6. **Finding**: Lack of X-Frame-Options header
+   **URL/Link**: N/A
+   **Why interesting**: The X-Frame-Options header prevents clickjacking attacks.
+   **Next step**: Check if the X-Frame-Options header is configured.
+   **Severity**: MEDIUM
+
+7. **Finding**: Absence of Referrer-Policy header
+   **URL/Link**: N/A
+   **Why interesting**: The Referrer-Policy header controls the behavior of the HTTP Referer header.
+   **Next step**: Verify if the Referrer-Policy header is configured.
+   **Severity**: MEDIUM
+
+8. **Finding**: Missing Cache-Control header
+   **URL/Link**: N/A
+   **Why interesting**: The Cache-Control header controls caching behavior, and its absence may lead to insecure caching.
+   **Next step**: Check if the Cache-Control header is configured.
+   **Severity**: MEDIUM
+
+9. **Finding**: Missing Expires header
+   **URL/Link**: N/A
+   **Why interesting**: The Expires header controls the time after which the cached content should not be used.
+   **Next step**: Verify if the Expires header is configured.
+   **Severity**: MEDIUM
+
+10. **Finding**: Lack of X-Content-Type-Options header
+    **URL/Link**: N/A
+    **Why interesting**: The X-Content-Type-Options header prevents content-sniffing by MIME-sniffing browsers.
+    **Next step**: Check if the X-Content-Type-Options header is configured.
+    **Severity**: MEDIUM
+
+--- Chunk 6 ---
+**Finding**: Missing HTTP Strict Transport Security (HSTS) Preload
+**URL/Link**: https://api.doorDash.com
+**Why interesting**: HSTS preload prevents downgrades to non-secure connections, protecting against man-in-the-middle attacks.
+**Next step**: Check if the site is using HSTS but not on the preload list, or if it's not using HSTS at all.
+**Severity**: HIGH

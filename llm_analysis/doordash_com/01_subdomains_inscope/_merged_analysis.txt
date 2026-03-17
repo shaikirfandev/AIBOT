@@ -1,0 +1,16 @@
+LLM Analysis: 01_subdomains_inscope.txt
+==================================================
+
+--- Chunk 1 ---
+**Finding**: Subdomains potentially exposing sensitive data or misconfigurations
+**URL/Link**: admin-gateway.doordash.com, ad-west-01.corp.doordash.com, ad-west-02.corp.doordash.com
+**Why interesting**: These subdomains might have access to critical data or settings, increasing the risk of unauthorized access or misconfigurations.
+**Next step**: Perform manual testing to check for unauthorized access or misconfigurations.
+**Severity**: MEDIUM
+
+--- Chunk 2 ---
+**Finding**: Unsecured subdomains with potential misconfigurations or sensitive data exposure
+**URL/Link**: partnerships.doordash.com, people.doordash.com, prism.doordash.com, projectimpact.doordash.com, etc.
+**Why interesting**: These subdomains may have misconfigurations or expose sensitive data, posing a security risk.
+**Next step**: Perform manual tests on these subdomains to check for potential misconfigurations or sensitive data exposure.
+**Severity**: MEDIUM

@@ -1,0 +1,229 @@
+[2026-03-12 20:53:03] [INFO] 🗄️  DB initialized: /home/shaik-irfan/Desktop/BugbountyHunter/data/bbhunter.db
+[2026-03-12 20:53:03] [INFO] 🔒 Safety gate active (scope enforcement)
+[2026-03-12 20:53:03] [INFO] 📋 Scan run: 48972f01...
+[2026-03-12 20:53:03] [INFO] ╔══════════════════════════════════════════════════════════╗
+[2026-03-12 20:53:03] [INFO] ║  BBHunter - Passive Recon Pipeline                       ║
+[2026-03-12 20:53:03] [INFO] ║  Target: doordash.com                                    ║
+[2026-03-12 20:53:03] [INFO] ║  Mode: PASSIVE ONLY (no active scanners)                 ║
+[2026-03-12 20:53:03] [INFO] ║  DB: haik-irfan/Desktop/BugbountyHunter/data/bbhunter.db   ║
+[2026-03-12 20:53:03] [INFO] ╚══════════════════════════════════════════════════════════╝
+[2026-03-12 20:53:03] [INFO] ═══ STEP 1: Subdomain Enumeration (subfinder) ═══
+[2026-03-12 20:53:03] [INFO] Running: /home/shaik-irfan/go/bin/subfinder -d doordash.com -silent -all
+[2026-03-12 20:53:03] [INFO] Output → /home/shaik-irfan/Desktop/BugbountyHunter/data/doordash_com/01_subdomains_raw.txt
+[2026-03-12 21:07:37] [INFO] 🗄️  DB initialized: /home/shaik-irfan/Desktop/BugbountyHunter/data/bbhunter.db
+[2026-03-12 21:07:37] [INFO] 🔒 Safety gate active (scope enforcement)
+[2026-03-12 21:07:37] [INFO] 📋 Scan run: 0b9637fb...
+[2026-03-12 21:07:37] [INFO] ═══ STEP 1: Subdomain Enumeration (subfinder) ═══
+[2026-03-12 21:07:37] [INFO] Running: /home/shaik-irfan/go/bin/subfinder -d doordash.com -silent -all
+[2026-03-12 21:07:37] [INFO] Output → /home/shaik-irfan/Desktop/BugbountyHunter/data/doordash_com/01_subdomains_raw.txt
+[2026-03-12 21:08:08] [INFO] ✓ Completed: 160 lines captured
+[2026-03-12 21:08:08] [INFO] Subdomains: 160 total → 154 in-scope
+[2026-03-12 21:08:08] [INFO] Out-of-scope subdomains logged: 6
+[2026-03-12 21:08:08] [INFO] 💾 160 subdomains → DB
+[2026-03-12 21:08:08] [INFO] 🤖 LLM analyzing 01_subdomains_inscope.txt: 2 chunks
+[2026-03-12 21:08:08] [INFO]    Chunk 1/2 (2993 chars)...
+[2026-03-12 21:08:46] [INFO]  ✓ (37.77s)
+[2026-03-12 21:08:46] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:08:47] [INFO]    Chunk 2/2 (903 chars)...
+[2026-03-12 21:09:04] [INFO]  ✓ (16.7s)
+[2026-03-12 21:09:04] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:09:05] [INFO] ✅ LLM analysis saved → 01_subdomains_inscope/ + DB
+[2026-03-12 21:09:05] [INFO] Step subdomain_enum completed in 87.5s
+[2026-03-12 21:09:06] [INFO] ═══ STEP 1b: Subdomain Enrichment (amass passive) ═══
+[2026-03-12 21:09:06] [INFO] Running: /home/shaik-irfan/go/bin/amass enum -passive -d doordash.com -silent
+[2026-03-12 21:09:06] [INFO] Output → /home/shaik-irfan/Desktop/BugbountyHunter/data/doordash_com/01b_subdomains_amass.txt
+[2026-03-12 21:19:06] [WARN] ✗ Timeout after 600s
+[2026-03-12 21:19:06] [INFO] Step amass_enum completed in 600.1s
+[2026-03-12 21:19:07] [INFO] ═══ STEP 2: DNS Resolution (dnsx + dig) ═══
+[2026-03-12 21:19:07] [INFO] Running: /home/shaik-irfan/go/bin/dnsx -l /home/shaik-irfan/Desktop/BugbountyHunter/data/doordash_com/01_subdomains_inscope.txt -silent -a -aaaa -cname -resp
+[2026-03-12 21:19:07] [INFO] Output → /home/shaik-irfan/Desktop/BugbountyHunter/data/doordash_com/02_dns_resolved.txt
+[2026-03-12 21:19:09] [INFO] ✓ Completed: 573 lines captured
+[2026-03-12 21:19:09] [INFO] 💾 573 DNS records → DB
+[2026-03-12 21:19:09] [INFO] 🤖 LLM analyzing 02_dns_resolved.txt: 16 chunks
+[2026-03-12 21:19:09] [INFO]    Chunk 1/16 (2973 chars)...
+[2026-03-12 21:19:50] [INFO]  ✓ (41.05s)
+[2026-03-12 21:19:50] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:19:51] [INFO]    Chunk 2/16 (2975 chars)...
+[2026-03-12 21:20:24] [INFO]  ✓ (33.06s)
+[2026-03-12 21:20:24] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:20:25] [INFO]    Chunk 3/16 (2954 chars)...
+[2026-03-12 21:21:00] [INFO]  ✓ (34.82s)
+[2026-03-12 21:21:00] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:21:01] [INFO]    Chunk 4/16 (2978 chars)...
+[2026-03-12 21:21:41] [INFO]  ✓ (40.1s)
+[2026-03-12 21:21:41] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:21:42] [INFO]    Chunk 5/16 (2916 chars)...
+[2026-03-12 21:22:24] [INFO]  ✓ (41.66s)
+[2026-03-12 21:22:25] [INFO]    Chunk 6/16 (2970 chars)...
+[2026-03-12 21:23:08] [INFO]  ✓ (42.83s)
+[2026-03-12 21:23:08] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:23:09] [INFO]    Chunk 7/16 (2981 chars)...
+[2026-03-12 21:23:44] [INFO]  ✓ (35.72s)
+[2026-03-12 21:23:44] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:23:45] [INFO]    Chunk 8/16 (2963 chars)...
+[2026-03-12 21:24:19] [INFO]  ✓ (33.36s)
+[2026-03-12 21:24:19] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:24:20] [INFO]    Chunk 9/16 (2970 chars)...
+[2026-03-12 21:25:03] [INFO]  ✓ (43.59s)
+[2026-03-12 21:25:03] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:25:04] [INFO]    Chunk 10/16 (2946 chars)...
+[2026-03-12 21:25:38] [INFO]  ✓ (33.48s)
+[2026-03-12 21:25:38] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:25:39] [INFO]    Chunk 11/16 (2980 chars)...
+[2026-03-12 21:27:02] [INFO]  ✓ (83.43s)
+[2026-03-12 21:27:02] [INFO]    💾 5 finding(s) → DB
+[2026-03-12 21:27:03] [INFO]    Chunk 12/16 (2980 chars)...
+[2026-03-12 21:27:41] [INFO]  ✓ (37.91s)
+[2026-03-12 21:27:41] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:27:42] [INFO]    Chunk 13/16 (2967 chars)...
+[2026-03-12 21:28:42] [INFO]  ✓ (59.59s)
+[2026-03-12 21:28:42] [INFO]    💾 4 finding(s) → DB
+[2026-03-12 21:28:43] [INFO]    Chunk 14/16 (2941 chars)...
+[2026-03-12 21:29:55] [INFO]  ✓ (72.32s)
+[2026-03-12 21:29:55] [INFO]    💾 3 finding(s) → DB
+[2026-03-12 21:29:56] [INFO]    Chunk 15/16 (2919 chars)...
+[2026-03-12 21:30:31] [INFO]  ✓ (34.49s)
+[2026-03-12 21:30:31] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:30:32] [INFO]    Chunk 16/16 (2032 chars)...
+[2026-03-12 21:30:59] [INFO]  ✓ (27.37s)
+[2026-03-12 21:30:59] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:31:00] [INFO] ✅ LLM analysis saved → 02_dns_resolved/ + DB
+[2026-03-12 21:31:00] [INFO] Step dns_resolution completed in 713.1s
+[2026-03-12 21:31:01] [INFO] ═══ STEP 2b: Live Host Probing (httpx) ═══
+[2026-03-12 21:31:01] [INFO] Running: /home/shaik-irfan/go/bin/httpx -l /home/shaik-irfan/Desktop/BugbountyHunter/data/doordash_com/01_subdomains_inscope.txt -silent -status-code -title -tech-detect -content-length -web-server -threads 5 -rate-limit 10 -H X-Bug-Bounty: researcher-handle
+[2026-03-12 21:31:01] [INFO] Output → /home/shaik-irfan/Desktop/BugbountyHunter/data/doordash_com/02b_httpx_live.txt
+[2026-03-12 21:32:04] [INFO] ✓ Completed: 98 lines captured
+[2026-03-12 21:32:04] [INFO] httpx: 98 live hosts detected
+[2026-03-12 21:32:04] [INFO] 💾 98 live hosts + 98 tech entries → DB
+[2026-03-12 21:32:04] [INFO] 🤖 LLM analyzing 02b_httpx_live.txt: 6 chunks
+[2026-03-12 21:32:04] [INFO]    Chunk 1/6 (2976 chars)...
+[2026-03-12 21:32:35] [INFO]  ✓ (31.59s)
+[2026-03-12 21:32:35] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:32:36] [INFO]    Chunk 2/6 (2852 chars)...
+[2026-03-12 21:33:37] [INFO]  ✓ (60.85s)
+[2026-03-12 21:33:37] [INFO]    💾 3 finding(s) → DB
+[2026-03-12 21:33:38] [INFO]    Chunk 3/6 (2937 chars)...
+[2026-03-12 21:34:30] [INFO]  ✓ (51.44s)
+[2026-03-12 21:34:30] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:34:31] [INFO]    Chunk 4/6 (2906 chars)...
+[2026-03-12 21:35:36] [INFO]  ✓ (65.12s)
+[2026-03-12 21:35:36] [INFO]    💾 4 finding(s) → DB
+[2026-03-12 21:35:37] [INFO]    Chunk 5/6 (2944 chars)...
+[2026-03-12 21:36:13] [INFO]  ✓ (36.14s)
+[2026-03-12 21:36:13] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:36:14] [INFO]    Chunk 6/6 (1551 chars)...
+[2026-03-12 21:37:10] [INFO]  ✓ (55.8s)
+[2026-03-12 21:37:10] [INFO]    💾 6 finding(s) → DB
+[2026-03-12 21:37:11] [INFO] ✅ LLM analysis saved → 02b_httpx_live/ + DB
+[2026-03-12 21:37:11] [INFO] Step httpx_probe completed in 369.8s
+[2026-03-12 21:37:12] [INFO] ═══ STEP 3: URL Discovery (gau - passive) ═══
+[2026-03-12 21:37:12] [INFO] Running: echo doordash.com | /home/shaik-irfan/go/bin/gau --threads 3 --subs
+[2026-03-12 21:42:01] [INFO] ✓ Completed: 1 lines captured
+[2026-03-12 21:42:01] [INFO] URLs: 1 raw → 1 unique in-scope
+[2026-03-12 21:42:01] [INFO] Interesting URLs flagged: 1
+[2026-03-12 21:42:01] [INFO] 💾 1 endpoints → DB
+[2026-03-12 21:42:01] [INFO] 🤖 LLM analyzing 03_urls_interesting.txt: 1 chunks
+[2026-03-12 21:42:01] [INFO]    Chunk 1/1 (147 chars)...
+[2026-03-12 21:42:11] [INFO]  ✓ (9.63s)
+[2026-03-12 21:42:11] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:42:12] [INFO] ✅ LLM analysis saved → 03_urls_interesting/ + DB
+[2026-03-12 21:42:12] [INFO] Step url_discovery completed in 299.8s
+[2026-03-12 21:42:13] [INFO] ═══ STEP 4: Wayback Machine URLs ═══
+[2026-03-12 21:42:13] [INFO] Running: echo www.doordash.com | /home/shaik-irfan/go/bin/waybackurls
+[2026-03-12 21:47:13] [ERROR] ✗ Pipeline error: Command '['/home/shaik-irfan/go/bin/waybackurls']' timed out after 300 seconds
+[2026-03-12 21:47:13] [INFO] Step wayback_urls completed in 300.0s
+[2026-03-12 21:47:14] [INFO] ═══ STEP 4b: Web Crawling (katana passive) ═══
+[2026-03-12 21:47:14] [INFO] Running: /home/shaik-irfan/go/bin/katana -u https://www.doordash.com -passive -silent -depth 3 -jc -kf all -rate-limit 5 -H X-Bug-Bounty: researcher-handle
+[2026-03-12 21:47:14] [INFO] Output → /home/shaik-irfan/Desktop/BugbountyHunter/data/doordash_com/04b_katana_urls.txt
+[2026-03-12 21:47:14] [INFO] ✓ Completed: 1 lines captured
+[2026-03-12 21:47:14] [INFO] Katana: 1 raw → 1 unique in-scope URLs
+[2026-03-12 21:47:14] [INFO] 💾 1 katana endpoints → DB
+[2026-03-12 21:47:14] [INFO] 🤖 LLM analyzing 04b_katana_clean.txt: 1 chunks
+[2026-03-12 21:47:14] [INFO]    Chunk 1/1 (40 chars)...
+[2026-03-12 21:47:28] [INFO]  ✓ (14.18s)
+[2026-03-12 21:47:28] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:47:29] [INFO] ✅ LLM analysis saved → 04b_katana_clean/ + DB
+[2026-03-12 21:47:29] [INFO] Step katana_crawl completed in 15.3s
+[2026-03-12 21:47:30] [INFO] ═══ STEP 4c: Link Extraction (hakrawler) ═══
+[2026-03-12 21:47:30] [INFO] Running: echo https://www.doordash.com | /home/shaik-irfan/go/bin/hakrawler -d 3 -t 5 -plain
+[2026-03-12 21:47:30] [INFO] ✓ Completed: 26 lines captured
+[2026-03-12 21:47:30] [INFO] Hakrawler: 26 raw → 26 unique in-scope
+[2026-03-12 21:47:30] [INFO] 💾 26 hakrawler endpoints → DB
+[2026-03-12 21:47:30] [INFO] 🤖 LLM analyzing 04c_hakrawler_clean.txt: 1 chunks
+[2026-03-12 21:47:30] [INFO]    Chunk 1/1 (777 chars)...
+[2026-03-12 21:47:57] [INFO]  ✓ (26.85s)
+[2026-03-12 21:47:57] [INFO]    💾 3 finding(s) → DB
+[2026-03-12 21:47:58] [INFO] ✅ LLM analysis saved → 04c_hakrawler_clean/ + DB
+[2026-03-12 21:47:58] [INFO] Step hakrawler completed in 27.9s
+[2026-03-12 21:47:59] [INFO] ═══ STEP 5: Technology Detection (curl headers) ═══
+[2026-03-12 21:48:28] [INFO] Scanned 22 targets for headers/tech
+[2026-03-12 21:48:28] [INFO] 💾 0 tech entries → DB
+[2026-03-12 21:48:28] [INFO] 🤖 LLM analyzing 05_tech_headers.txt: 6 chunks
+[2026-03-12 21:48:28] [INFO]    Chunk 1/6 (2974 chars)...
+[2026-03-12 21:50:24] [INFO]  ✓ (115.3s)
+[2026-03-12 21:50:24] [INFO]    💾 12 finding(s) → DB
+[2026-03-12 21:50:25] [INFO]    Chunk 2/6 (2853 chars)...
+[2026-03-12 21:51:47] [INFO]  ✓ (82.06s)
+[2026-03-12 21:51:47] [INFO]    💾 8 finding(s) → DB
+[2026-03-12 21:51:48] [INFO]    Chunk 3/6 (2954 chars)...
+[2026-03-12 21:52:13] [INFO]  ✓ (25.49s)
+[2026-03-12 21:52:13] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:52:14] [INFO]    Chunk 4/6 (2970 chars)...
+[2026-03-12 21:52:42] [INFO]  ✓ (27.47s)
+[2026-03-12 21:52:42] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:52:43] [INFO]    Chunk 5/6 (2989 chars)...
+[2026-03-12 21:54:11] [INFO]  ✓ (88.04s)
+[2026-03-12 21:54:11] [INFO]    💾 9 finding(s) → DB
+[2026-03-12 21:54:12] [INFO]    Chunk 6/6 (1336 chars)...
+[2026-03-12 21:54:29] [INFO]  ✓ (16.79s)
+[2026-03-12 21:54:29] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:54:30] [INFO] ✅ LLM analysis saved → 05_tech_headers/ + DB
+[2026-03-12 21:54:30] [INFO] Step tech_detection completed in 390.7s
+[2026-03-12 21:54:31] [INFO] ═══ STEP 6: Service Fingerprinting (passive) ═══
+[2026-03-12 21:54:33] [INFO] Checked 4 common ports passively
+[2026-03-12 21:54:33] [INFO] 🤖 LLM analyzing 06_services_passive.txt: 1 chunks
+[2026-03-12 21:54:33] [INFO]    Chunk 1/1 (311 chars)...
+[2026-03-12 21:55:05] [INFO]  ✓ (31.83s)
+[2026-03-12 21:55:05] [INFO]    💾 3 finding(s) → DB
+[2026-03-12 21:55:06] [INFO] ✅ LLM analysis saved → 06_services_passive/ + DB
+[2026-03-12 21:55:06] [INFO] Step port_scan_passive completed in 35.3s
+[2026-03-12 21:55:07] [INFO] ═══ STEP 7: JavaScript File Discovery ═══
+[2026-03-12 21:55:07] [INFO] JavaScript files discovered: 1
+[2026-03-12 21:55:08] [INFO] Downloaded 1 JS files, extracted 0 endpoints
+[2026-03-12 21:55:08] [INFO] 💾 0 JS endpoints → DB
+[2026-03-12 21:55:08] [INFO] 🤖 LLM analyzing 07_js_files.txt: 1 chunks
+[2026-03-12 21:55:08] [INFO]    Chunk 1/1 (72 chars)...
+[2026-03-12 21:55:17] [INFO]  ✓ (9.52s)
+[2026-03-12 21:55:17] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:55:18] [INFO] ✅ LLM analysis saved → 07_js_files/ + DB
+[2026-03-12 21:55:18] [INFO] Step js_analysis completed in 11.4s
+[2026-03-12 21:55:19] [INFO] ═══ STEP 8: Parameter Discovery ═══
+[2026-03-12 21:55:19] [INFO] Parameters catalogued: 0
+[2026-03-12 21:55:19] [INFO] 💾 0 parameters → DB
+[2026-03-12 21:55:19] [INFO] 🤖 LLM analyzing 08_parameters.txt: 1 chunks
+[2026-03-12 21:55:19] [INFO]    Chunk 1/1 (133 chars)...
+[2026-03-12 21:55:26] [INFO]  ✓ (6.97s)
+[2026-03-12 21:55:26] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:55:27] [INFO] ✅ LLM analysis saved → 08_parameters/ + DB
+[2026-03-12 21:55:27] [INFO] Step param_discovery completed in 8.0s
+[2026-03-12 21:55:28] [INFO] ═══ STEP 9: Security Header Analysis ═══
+[2026-03-12 21:55:28] [INFO] Security header analysis complete
+[2026-03-12 21:55:28] [INFO] 🤖 LLM analyzing 09_security_headers.txt: 2 chunks
+[2026-03-12 21:55:28] [INFO]    Chunk 1/2 (2994 chars)...
+[2026-03-12 21:55:55] [INFO]  ✓ (26.33s)
+[2026-03-12 21:55:55] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:55:56] [INFO]    Chunk 2/2 (2603 chars)...
+[2026-03-12 21:56:19] [INFO]  ✓ (23.24s)
+[2026-03-12 21:56:19] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:56:20] [INFO] ✅ LLM analysis saved → 09_security_headers/ + DB
+[2026-03-12 21:56:20] [INFO] Step header_analysis completed in 51.6s
+[2026-03-12 21:56:21] [INFO] ═══ STEP 10: Final Consolidation & Summary ═══
+[2026-03-12 21:56:21] [INFO] Recon summary generated
+[2026-03-12 21:56:21] [INFO] 💾 DB Stats: 258 assets, 28 endpoints, 0 params, 86 vulns, 38 LLM chunks
+[2026-03-12 21:56:21] [INFO] 🤖 LLM analyzing 10_recon_summary.txt: 1 chunks
+[2026-03-12 21:56:21] [INFO]    Chunk 1/1 (2072 chars)...
+[2026-03-12 21:56:38] [INFO]  ✓ (16.67s)
+[2026-03-12 21:56:38] [INFO]    💾 1 finding(s) → DB
+[2026-03-12 21:56:39] [INFO] ✅ LLM analysis saved → 10_recon_summary/ + DB
+[2026-03-12 21:56:39] [INFO] Step scope_filter completed in 17.7s
+[2026-03-12 21:56:40] [INFO] Data saved to: /home/shaik-irfan/Desktop/BugbountyHunter/data/doordash_com

@@ -1,0 +1,8 @@
+{
+  "chunk_index": 6,
+  "chunk_hash": "ae4b44a98c62",
+  "llm_response": "**Finding**: Internal IP addresses are exposed, potentially allowing for easier access to internal systems.\n**URL/Link**: ns2.doordash.com has an internal IP of 162.159.7.107\n**Why interesting**: This could allow attackers to access internal systems more easily.\n**Next step**: Verify if these IPs are indeed internal and if they contain sensitive information.\n**Severity**: MEDIUM",
+  "tokens_eval": 83,
+  "duration_s": 35.72,
+  "success": true
+}

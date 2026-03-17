@@ -1,0 +1,8 @@
+{
+  "chunk_index": 1,
+  "chunk_hash": "3146319c08dc",
+  "llm_response": "**Finding**: Missing HSTS, CSP, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy, CORS, Cookies, Server, and X-Powered-By security headers\n**URL/Link**: https://ads.doordash.com\n**Why interesting**: Lack of security headers can lead to various attacks such as XSS, CSRF, and clickjacking\n**Next step**: Verify if these headers can be added and test the effectiveness of each\n**Severity**: HIGH",
+  "tokens_eval": 113,
+  "duration_s": 23.24,
+  "success": true
+}

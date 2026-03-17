@@ -1,0 +1,78 @@
+# ============================================================
+# Authorized Targets Configuration
+# ============================================================
+# ONLY targets listed here will be scanned.
+# You MUST have written authorization before adding targets.
+# ============================================================
+
+targets:
+  # Example entry:
+  # - domain: "example.com"
+  #   scope:
+  #     include:
+  #       - "*.example.com"
+  #       - "api.example.com"
+  #     exclude:
+  #       - "production-db.example.com"
+  #       - "*.internal.example.com"
+  #   authorization:
+  #     type: "bug_bounty_program"
+  #     platform: "hackerone"
+  #     program_url: "https://hackerone.com/example"
+  #     authorized_date: "2026-01-15"
+  #     expiry_date: "2026-12-31"
+  #     tester: "your-username"
+  #   rules:
+  #     rate_limit_rps: 5
+  #     no_automated_exploitation: false
+  #     allowed_test_types:
+  #       - recon
+  #       - surface_mapping
+  #       - vulnerability_scan
+  #       - manual_test
+
+  - domain: "doordash.com"
+    scope:
+      include:
+        - "www.doordash.com"
+        - "doordash.com"
+      exclude:
+        - "unified-gateway.doordash.com"
+        - "track.doordash.com"
+        - "merchant-portal.doordash.com"
+        - "merchant-mobile-bff.doordash.com"
+        - "ir.doordash.com"
+        - "internal.doordash.com"
+        - "consumer-mobile-bff.doordash.com"
+        - "careersatdoordash.com"
+        - "help.doordash.com"
+        - "*.order.online"
+        - "*.doorcrawl.com"
+        - "*.dashapi.com"
+      exclude_paths:
+        - "/merchant/*"
+        - "/unified-gateway/*"
+        - "/orders/drive/*"
+    authorization:
+      type: "bug_bounty_program"
+      platform: "hackerone"
+      program_url: "https://hackerone.com/doordash"
+      authorized_date: "2025-01-01"
+      tester: "security-researcher"
+    rules:
+      rate_limit_rps: 2
+      no_automated_scanners: true
+      no_brute_force: true
+      no_dos: true
+      no_aws_writes: true
+      required_header: "X-Bug-Bounty: researcher-handle"
+      allowed_test_types:
+        - recon
+        - passive_recon
+        - surface_mapping
+        - manual_test
+      prohibited_test_types:
+        - automated_vulnerability_scan
+        - brute_force
+        - dos_test
+        - active_exploitation

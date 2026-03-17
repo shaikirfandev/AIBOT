@@ -1,0 +1,8 @@
+{
+  "chunk_index": 4,
+  "chunk_hash": "b792b23ecc1d",
+  "llm_response": "1. **Finding**: HSTS and HTTP/3 protocols detected on multiple endpoints.\n2. **URL/Link**: https://otel-mobile.doordash.com, https://page-service-qa.doordash.com, https://page-service.doordash.com, https://prism.doordash.com, https://static-edge.doordash.com, https://partnerships.doordash.com\n3. **Why interesting**: HSTS (HTTP Strict Transport Security) helps protect against protocol downgrade attacks, while HTTP/3 improves security and performance. Their presence suggests a commitment to secure communication.\n4. **Next step**: Verify if HSTS and HTTP/3 are properly implemented and functioning as expected.\n5. **Severity**: MEDIUM",
+  "tokens_eval": 158,
+  "duration_s": 36.14,
+  "success": true
+}

@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  bbhunter:
+    build: .
+    container_name: bbhunter-app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./config.yaml:/app/config.yaml:ro
+      - ./authorized_targets.yaml:/app/authorized_targets.yaml:ro
+    environment:
+      - BBHUNTER_ENV=production
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - SHODAN_API_KEY=${SHODAN_API_KEY:-}
+      - CENSYS_API_KEY=${CENSYS_API_KEY:-}
+      - VIRUSTOTAL_API_KEY=${VIRUSTOTAL_API_KEY:-}
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - bbhunter-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: bbhunter-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - bbhunter-net
+
+  worker:
+    build: .
+    container_name: bbhunter-worker
+    entrypoint: ["celery", "-A", "bbhunter.tasks", "worker", "--loglevel=info"]
+    volumes:
+      - ./data:/app/data
+      - ./config.yaml:/app/config.yaml:ro
+      - ./authorized_targets.yaml:/app/authorized_targets.yaml:ro
+    environment:
+      - BBHUNTER_ENV=production
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - bbhunter-net
+
+volumes:
+  redis-data:
+
+networks:
+  bbhunter-net:
+    driver: bridge

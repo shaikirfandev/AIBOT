@@ -1,0 +1,8 @@
+{
+  "chunk_index": 0,
+  "chunk_hash": "2c8840bd2dd6",
+  "llm_response": "**Finding**: No unique parameters found in the data chunk.\n**URL/Link**: N/A\n**Why interesting**: No security implications found in this data chunk.\n**Next step**: Continue with further data chunks or conduct a full scan of the target domain.\n**Severity**: INFO",
+  "tokens_eval": 57,
+  "duration_s": 6.97,
+  "success": true
+}

@@ -1,0 +1,8 @@
+{
+  "chunk_index": 3,
+  "chunk_hash": "24dd3443e272",
+  "llm_response": "**Finding**: Internal IP addresses and cloud services exposed.\n**URL/Link**: mail.doordash.com, 7kx9f.doordash.com, api. doordash.com, careers.doordash.com, drive-booking. doordash.com, business.doordash.com, identity.doordash.com\n**Why interesting**: Exposing internal IPs and cloud services can lead to unauthorized access and data breaches.\n**Next step**: Verify if these IPs and services are properly secured and accessible only to authorized users.\n**Severity**: MEDIUM",
+  "tokens_eval": 115,
+  "duration_s": 40.1,
+  "success": true
+}

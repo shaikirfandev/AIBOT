@@ -1,0 +1,143 @@
+# ============================================================
+# BugBounty Hunter - Configuration
+# ============================================================
+# IMPORTANT: Only use this tool on targets where you have
+# EXPLICIT WRITTEN AUTHORIZATION to perform security testing.
+# ============================================================
+
+app:
+  name: "BugBounty Hunter Suite"
+  version: "1.0.0"
+  log_level: "INFO"       # DEBUG, INFO, WARNING, ERROR
+  max_concurrent_tasks: 10
+  data_dir: "./data"
+  reports_dir: "./reports"
+
+# --- Authorization & Safety ---
+safety:
+  require_authorization: true
+  authorization_file: "./authorized_targets.yaml"
+  rate_limit_rps: 10          # requests per second
+  max_requests_per_target: 10000
+  respect_robots_txt: true
+  avoid_dos: true
+  log_all_actions: true
+  action_log_file: "./logs/actions.log"
+  banned_methods:
+    - "dos"
+    - "ddos"
+    - "brute_force_production"
+
+# --- Database ---
+database:
+  url: "sqlite+aiosqlite:///./data/bbhunter.db"
+  echo: false
+
+# --- Celery / Task Queue ---
+celery:
+  broker_url: "redis://localhost:6379/0"
+  result_backend: "redis://localhost:6379/1"
+
+# --- Recon Engine ---
+recon:
+  passive:
+    enable_ct_logs: true
+    enable_wayback: true
+    enable_github_search: true
+    enable_shodan: false
+    enable_censys: false
+    enable_virustotal: false
+  active:
+    enable_dns_brute: true
+    enable_port_scan: false      # careful with scope
+    dns_wordlist: "./wordlists/dns-subdomains.txt"
+    dns_resolvers:
+      - "8.8.8.8"
+      - "1.1.1.1"
+      - "9.9.9.9"
+  timeout: 30
+  max_concurrent: 20
+
+# --- Surface Mapping ---
+surface_mapping:
+  crawl_depth: 3
+  max_urls: 5000
+  js_analysis: true
+  discover_graphql: true
+  discover_swagger: true
+  technology_fingerprint: true
+  waf_detection: true
+  timeout: 15
+
+# --- Vulnerability Scanner ---
+scanner:
+  categories:
+    - xss
+    - sqli
+    - ssrf
+    - idor
+    - csrf
+    - ssti
+    - command_injection
+    - open_redirect
+    - cors
+    - auth_bypass
+    - rate_limit
+    - jwt
+    - file_upload
+    - path_traversal
+  advanced:
+    - business_logic
+    - access_control
+    - race_condition
+    - graphql_abuse
+    - api_privesc
+    - cloud_misconfig
+  max_payloads_per_param: 50
+  timeout: 20
+  follow_redirects: false
+
+# --- Payload Engine ---
+payloads:
+  mutation_level: 3          # 1-5 (higher = more mutations)
+  waf_bypass: true
+  encoding_layers: 3
+  custom_payloads_dir: "./payloads/custom"
+
+# --- Analysis Engine ---
+analysis:
+  false_positive_threshold: 0.7
+  chain_detection: true
+  impact_scoring: true
+  auto_verify: true
+
+# --- Reporting ---
+reporting:
+  format: "markdown"          # markdown, html, pdf, json
+  template: "hackerone"       # hackerone, bugcrowd, custom
+  include_screenshots: true
+  include_payloads: true
+  auto_severity: true
+
+# --- Dashboard ---
+dashboard:
+  host: "127.0.0.1"
+  port: 8443
+  secret_key: "CHANGE-ME-IN-PRODUCTION"
+  enable_auth: true
+  default_user: "admin"
+
+# --- Learning Module ---
+learning:
+  enable: true
+  feedback_db: "./data/feedback.db"
+  retrain_interval_hours: 24
+  min_samples: 100
+
+# --- API Keys (use env vars in production) ---
+api_keys:
+  shodan: "${SHODAN_API_KEY}"
+  censys_id: "${CENSYS_API_ID}"
+  censys_secret: "${CENSYS_API_SECRET}"
+  virustotal: "${VIRUSTOTAL_API_KEY}"
+  github_token: "${GITHUB_TOKEN}"

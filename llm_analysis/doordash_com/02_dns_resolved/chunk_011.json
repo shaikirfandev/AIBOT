@@ -1,0 +1,8 @@
+{
+  "chunk_index": 11,
+  "chunk_hash": "ee70cf1eb327",
+  "llm_response": "**Finding**: Internal IP addresses found for subdomains.\n**URL/Link**: typography.doordash.com, typography. doordash. com, support. doordash. com, tracksg. doordash. com, trackbz. doordash. com\n**Why interesting**: Exposing internal IPs can lead to unauthorized access.\n**Next step**: Verify if these IPs are properly firewalled and investigate any exposed services.\n**Severity**: MEDIUM",
+  "tokens_eval": 96,
+  "duration_s": 37.91,
+  "success": true
+}

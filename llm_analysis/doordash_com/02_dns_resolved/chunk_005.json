@@ -1,0 +1,8 @@
+{
+  "chunk_index": 5,
+  "chunk_hash": "804e99ef8abb",
+  "llm_response": "1. **Finding**: Multiple internal IPs and CNAME records found for subdomains of doordash.com\n2. **URL/Link**: links. doordash.com, creator. doordash.com, email. recruiting. doordash.com, internalcareers. doordash.com, api- drive. doordash.com, driver. doordash.com, ns2. doordash.com, otel- mobile. doordash.com\n3. **Why interesting**: These internal IPs and CNAME records could potentially lead to unauthorized access to internal systems or resources if exploited.\n4. **Next step**: Perform deeper manual testing on these subdomains to identify any potential vulnerabilities or misconfigurations.\n5. **Severity**: MEDIUM",
+  "tokens_eval": 154,
+  "duration_s": 42.83,
+  "success": true
+}
