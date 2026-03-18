@@ -10,10 +10,11 @@
 #   ./run.sh resume                   # resume from checkpoint
 #   ./run.sh target example.com       # set target
 #
-# Timeout / Skip control (env vars):
-#   BB_STEP_TIMEOUT=300 ./run.sh      # 5 min per recon tool step
-#   BB_CHUNK_TIMEOUT=120 ./run.sh     # 2 min per LLM chunk
-#   BB_MAX_FAILURES=5 ./run.sh        # skip file after 5 chunk failures
+# Timeout / Skip control (env vars — these are the defaults):
+#   BB_STEP_TIMEOUT=300   5 min per recon tool step  (default)
+#   BB_CHUNK_TIMEOUT=600  10 min per LLM chunk       (default)
+#   BB_MAX_FAILURES=3     skip file after 3 failures (default)
+# Override: BB_STEP_TIMEOUT=60 BB_CHUNK_TIMEOUT=120 ./run.sh
 # ============================================================
 
 set -e
@@ -39,6 +40,11 @@ export GOPATH="$HOME/go"
 
 # Default target
 export BB_TARGET="${BB_TARGET:-doordash.com}"
+
+# Default timeouts (override with env vars)
+export BB_STEP_TIMEOUT="${BB_STEP_TIMEOUT:-300}"    # 5 min per recon tool
+export BB_CHUNK_TIMEOUT="${BB_CHUNK_TIMEOUT:-600}"  # 10 min per LLM chunk
+export BB_MAX_FAILURES="${BB_MAX_FAILURES:-3}"      # skip file after 3 failures
 
 echo -e "${CYAN}"
 echo "  ╔══════════════════════════════════════╗"
