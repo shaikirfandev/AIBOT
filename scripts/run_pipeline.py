@@ -22,6 +22,7 @@ Usage:
 
 import argparse
 import json
+import logging
 import sys
 import os
 import time
@@ -99,7 +100,8 @@ def check_prerequisites():
         resp = requests.get("http://localhost:11434/api/tags", timeout=3)
         models = [m["name"] for m in resp.json().get("models", [])]
         print(f"  ✓ Ollama ({len(models)} models loaded)")
-    except Exception:
+    except Exception as exc:
+        logging.debug(f"Ollama connectivity check failed: {exc}")
         print(f"  ✗ Ollama not running")
         issues.append("Start Ollama: ollama serve")
 
@@ -121,22 +123,20 @@ def check_prerequisites():
     return True
 
 
-def run_phase_recon(target: str, resume: bool = False):
+def run_phase_recon(target: str, resume: bool = False, step_timeout: int = 0):
     """Phase 1: Passive Reconnaissance."""
     console.print(Panel(
-        f"[bold]PHASE 1: PASSIVE RECONNAISSANCE[/bold]\nTarget: [cyan]{target}[/cyan]",
+        f"[bold]PHASE 1: PASSIVE RECONNAISSANCE[/bold]\nTarget: [cyan]{target}[/cyan]"
+        + (f"\n[dim]Step timeout: {step_timeout}s[/dim]" if step_timeout else ""),
         style="blue",
     ))
 
-    # Set target env var and import hunt module
+    # Set target env var and reload config
     os.environ["BB_TARGET"] = target
-
-    # Re-import config with new target
-    import importlib
     import config
-    importlib.reload(config)
+    config.reload_target(target)
 
-    from hunt import STEPS, ensure_dirs, log
+    from hunt import STEPS, ensure_dirs, log, run_step_with_timeout
     ensure_dirs()
 
     step_list = list(STEPS.items())
@@ -157,10 +157,11 @@ def run_phase_recon(target: str, resume: bool = False):
         task = progress.add_task("Recon", total=len(step_list))
         for name, func in step_list:
             progress.update(task, description=f"[cyan]{name}[/cyan]")
-            try:
-                func()
-            except Exception as e:
-                console.print(f"  [red]✗ {name} failed: {e}[/red]")
+            status = run_step_with_timeout(name, func, step_timeout)
+            if status == "⏭":
+                console.print(f"  [yellow]⏭ {name} skipped (timeout)[/yellow]")
+            elif status == "✗":
+                console.print(f"  [red]✗ {name} failed[/red]")
             progress.advance(task)
             time.sleep(1)
 
@@ -170,23 +171,32 @@ def run_phase_recon(target: str, resume: bool = False):
     return True
 
 
-def run_phase_analyze(target: str, resume: bool = False):
+def run_phase_analyze(target: str, resume: bool = False,
+                      chunk_timeout: int = 0, max_failures: int = 0):
     """Phase 2: LLM Chunk Analysis."""
     console.print(Panel(
-        f"[bold]PHASE 2: LLM CHUNK ANALYSIS[/bold]\nTarget: [cyan]{target}[/cyan]",
+        f"[bold]PHASE 2: LLM CHUNK ANALYSIS[/bold]\nTarget: [cyan]{target}[/cyan]"
+        + (f"\n[dim]Chunk timeout: {chunk_timeout}s | Max failures: {max_failures}[/dim]"
+           if chunk_timeout or max_failures else ""),
         style="yellow",
     ))
 
     os.environ["BB_TARGET"] = target
 
-    import importlib
     import config
-    importlib.reload(config)
+    config.reload_target(target)
 
     from llm_analyzer import (
         get_data_files, process_file, check_llm_health, ensure_dirs
     )
     ensure_dirs()
+
+    # Propagate timeout/skip settings into llm_analyzer module
+    import llm_analyzer as _llm_mod
+    if chunk_timeout:
+        _llm_mod._chunk_timeout = chunk_timeout
+    if max_failures:
+        _llm_mod._max_consecutive_failures = max_failures
 
     if not check_llm_health():
         console.print("  [red]✗ LLM not available. Start Ollama first.[/red]")
@@ -236,9 +246,8 @@ def run_phase_engines(target: str):
 
     os.environ["BB_TARGET"] = target
 
-    import importlib
     import config
-    importlib.reload(config)
+    config.reload_target(target)
 
     try:
         import asyncio
@@ -275,9 +284,8 @@ def run_phase_report(target: str, fmt: str = "markdown"):
 
     os.environ["BB_TARGET"] = target
 
-    import importlib
     import config
-    importlib.reload(config)
+    config.reload_target(target)
 
     from generate_report import (
         collect_analyses, extract_findings_from_analyses,
@@ -375,6 +383,12 @@ Examples:
     parser.add_argument("--check", action="store_true", help="Check prerequisites only")
     parser.add_argument("--skip-engines", action="store_true",
                         help="Skip the bbhunter engine phase in 'all' mode")
+    parser.add_argument("--step-timeout", type=int, default=0,
+                        help="Max seconds per recon tool step (0=use config, default=600)")
+    parser.add_argument("--chunk-timeout", type=int, default=0,
+                        help="Max seconds per LLM chunk (0=use config, default=300)")
+    parser.add_argument("--max-failures", type=int, default=0,
+                        help="Skip to next file after N consecutive LLM failures (0=use config)")
     args = parser.parse_args()
 
     banner()
@@ -390,6 +404,12 @@ Examples:
     info_table.add_row("📋 Phase", args.phase)
     info_table.add_row("🔄 Resume", str(args.resume))
     info_table.add_row("📄 Format", args.format)
+    if args.step_timeout:
+        info_table.add_row("⏱  Step timeout", f"{args.step_timeout}s")
+    if args.chunk_timeout:
+        info_table.add_row("⏱  Chunk timeout", f"{args.chunk_timeout}s")
+    if args.max_failures:
+        info_table.add_row("⏭  Max failures", str(args.max_failures))
     console.print(info_table)
 
     # Prerequisites check
@@ -440,9 +460,10 @@ Examples:
                 success = False
 
                 if phase_key == "recon":
-                    success = run_phase_recon(target, args.resume)
+                    success = run_phase_recon(target, args.resume, args.step_timeout)
                 elif phase_key == "analyze":
-                    success = run_phase_analyze(target, args.resume)
+                    success = run_phase_analyze(target, args.resume,
+                                                args.chunk_timeout, args.max_failures)
                 elif phase_key == "engines":
                     success = run_phase_engines(target)
                 elif phase_key == "report":

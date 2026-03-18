@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 from collections import Counter, defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -51,7 +51,8 @@ class LearningModule:
         if self.feedback_file.exists():
             try:
                 self.feedback_data = json.loads(self.feedback_file.read_text())
-            except Exception:
+            except Exception as exc:
+                logger.debug(f"Failed to load feedback file: {exc}")
                 self.feedback_data = []
 
     def _save_feedback(self):
@@ -63,8 +64,8 @@ class LearningModule:
         if self.model_file.exists():
             try:
                 return json.loads(self.model_file.read_text())
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug(f"Failed to load model file: {exc}")
         return self._default_model()
 
     def _save_model(self):
@@ -103,7 +104,7 @@ class LearningModule:
             "url_pattern": url_pattern,
             "confidence": confidence,
             "notes": notes,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         self.feedback_data.append(feedback)
         self._save_feedback()
@@ -163,7 +164,7 @@ class LearningModule:
         total = len(self.feedback_data)
         self.model["true_positive_rate"] = tp_count / total if total > 0 else 0.5
         self._extract_patterns()
-        self.model["last_trained"] = datetime.utcnow().isoformat()
+        self.model["last_trained"] = datetime.now(timezone.utc).isoformat()
         self._save_model()
         logger.info(f"✅ Model retrained. TP rate: {self.model['true_positive_rate']:.2%}")
 

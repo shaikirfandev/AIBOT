@@ -26,14 +26,14 @@ from pathlib import Path
 from typing import Any
 
 from bbhunter.logger import get_logger
-from bbhunter.safety import SafetyGate
+from bbhunter.safety import get_safety_gate
 from bbhunter.models import (
     Asset, AssetType, Endpoint, Vulnerability,
     VulnCategory, Severity, ScanStatus,
 )
 
 logger = get_logger()
-safety = SafetyGate()
+safety = get_safety_gate()
 
 
 # ─── Utility ────────────────────────────────────────────────────────────
@@ -451,14 +451,14 @@ class NucleiRunner:
         "sqli": VulnCategory.SQLI,
         "ssrf": VulnCategory.SSRF,
         "ssti": VulnCategory.SSTI,
-        "lfi": VulnCategory.LFI,
-        "rfi": VulnCategory.RFI,
-        "rce": VulnCategory.RCE,
+        "lfi": VulnCategory.PATH_TRAVERSAL,
+        "rfi": VulnCategory.PATH_TRAVERSAL,
+        "rce": VulnCategory.COMMAND_INJECTION,
         "redirect": VulnCategory.OPEN_REDIRECT,
         "cors": VulnCategory.CORS,
         "cve": VulnCategory.OTHER,
-        "exposure": VulnCategory.INFO_DISCLOSURE,
-        "misconfiguration": VulnCategory.MISCONFIGURATION,
+        "exposure": VulnCategory.INFORMATION_DISCLOSURE,
+        "misconfiguration": VulnCategory.CLOUD_MISCONFIG,
     }
 
     @staticmethod

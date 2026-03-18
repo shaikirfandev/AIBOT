@@ -43,7 +43,7 @@ class DNSEnumerator:
         assets: list[Asset] = []
         dns_records: dict[str, list[str]] = {}
 
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
 
         for rtype in self.RECORD_TYPES:
             try:
@@ -120,7 +120,8 @@ class DNSEnumerator:
         try:
             answers = self.resolver.resolve(domain, rtype)
             return [str(rdata) for rdata in answers]
-        except Exception:
+        except Exception as exc:
+            logger.debug(f"DNS resolve failed for {domain}/{rtype}: {exc}")
             return []
 
     def _zone_transfer(self, domain: str) -> list[str]:
@@ -136,10 +137,11 @@ class DNSEnumerator:
                         host = str(name)
                         if host != "@":
                             hosts.append(f"{host}.{domain}")
-                except Exception:
+                except Exception as exc:
+                    logger.debug(f"Zone transfer failed for NS {ns_str}: {exc}")
                     continue
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug(f"NS lookup failed for zone transfer on {domain}: {exc}")
         return hosts
 
     def _analyze_txt_record(

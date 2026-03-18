@@ -30,28 +30,34 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from config import (
     TARGET_DOMAIN, TARGET_DIR, TARGET_LLM_DIR,
-    LLM_API_URL, LLM_MODEL,
+    LLM_API_URL, LLM_MODEL, PROGRAM_NAME,
     CHUNK_SIZE_CHARS, CHUNK_OVERLAP_CHARS,
     MAX_RESPONSE_TOKENS, LLM_TEMPERATURE,
     LLM_REQUEST_TIMEOUT, DOORDASH_RULES,
     ensure_dirs,
+    LLM_CHUNK_TIMEOUT, MAX_CONSECUTIVE_FAILURES,
+    LLM_NUM_CTX, LLM_NUM_BATCH,
 )
+
+# ── Timeout / Skip Settings (can be overridden at runtime) ──
+_chunk_timeout: int = LLM_CHUNK_TIMEOUT  # 0 = use LLM_REQUEST_TIMEOUT
+_max_consecutive_failures: int = MAX_CONSECUTIVE_FAILURES
 
 # ── DB integration (optional, works without it too) ──
 _db_instance = None
 _target_id = ""
-_scan_run_id = ""
+_scan_id = ""
 
 def init_analyzer_db():
     """Initialize DB for standalone llm_analyzer runs."""
-    global _db_instance, _target_id, _scan_run_id
+    global _db_instance, _target_id, _scan_id
     try:
         from db_manager import get_db
         _db_instance = get_db()
         _target_id = _db_instance.get_target_id(TARGET_DOMAIN)
         if not _target_id:
-            _target_id = _db_instance.upsert_target(TARGET_DOMAIN, "HackerOne - DoorDash")
-        _scan_run_id = _db_instance.start_scan_run(_target_id, "llm_analysis")
+            _target_id = _db_instance.upsert_target(TARGET_DOMAIN, PROGRAM_NAME)
+        _scan_id = _db_instance.start_scan(_target_id, "llm_analysis")
         print(f"  💾 DB connected: {_db_instance.db_path}")
     except Exception as e:
         print(f"  ⚠️  DB not available (non-fatal): {e}")
@@ -107,12 +113,18 @@ def chunk_text(text: str, chunk_size: int = CHUNK_SIZE_CHARS,
 #  LLM Client (Ollama API)
 # ─────────────────────────────────────────────────────────────
 
-def query_llm(prompt: str, system_prompt: str = "") -> dict:
+def query_llm(prompt: str, system_prompt: str = "", timeout_override: int = 0, max_retries: int = 3) -> dict:
     """
     Send a prompt to the local Ollama LLM (dolphin-llama3:8b).
     No thinking mode — direct responses, all tokens go to output.
     Returns {response, tokens_eval, duration_s, success}
+
+    timeout_override: if >0, use this instead of default. 0 means use
+    _chunk_timeout (if >0) or LLM_REQUEST_TIMEOUT.
+
+    Retries transient failures with exponential backoff (1s, 2s, 4s …).
     """
+    effective_timeout = timeout_override or _chunk_timeout or LLM_REQUEST_TIMEOUT
     payload = {
         "model": LLM_MODEL,
         "prompt": prompt,
@@ -120,43 +132,54 @@ def query_llm(prompt: str, system_prompt: str = "") -> dict:
         "options": {
             "temperature": LLM_TEMPERATURE,
             "num_predict": MAX_RESPONSE_TOKENS,
-            "num_ctx": 4096,         # dolphin-llama3 handles 8K, 4K is safe for 4GB VRAM
-            "num_batch": 256,        # dolphin fits better in VRAM
+            "num_ctx": LLM_NUM_CTX,
+            "num_batch": LLM_NUM_BATCH,
         },
     }
     if system_prompt:
         payload["system"] = system_prompt
 
-    start = time.time()
-    try:
-        resp = requests.post(
-            f"{LLM_API_URL}/api/generate",
-            json=payload,
-            timeout=LLM_REQUEST_TIMEOUT,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        elapsed = time.time() - start
+    last_error: str = ""
+    for attempt in range(1, max_retries + 1):
+        start = time.time()
+        try:
+            resp = requests.post(
+                f"{LLM_API_URL}/api/generate",
+                json=payload,
+                timeout=effective_timeout,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            elapsed = time.time() - start
 
-        # Prefer 'response'; fall back to 'thinking' if response is empty
-        response_text = data.get("response", "")
-        if not response_text.strip():
-            response_text = data.get("thinking", "")
+            # Prefer 'response'; fall back to 'thinking' if response is empty
+            response_text = data.get("response", "")
+            if not response_text.strip():
+                response_text = data.get("thinking", "")
 
-        return {
-            "response": response_text,
-            "tokens_eval": data.get("eval_count", 0),
-            "tokens_prompt": data.get("prompt_eval_count", 0),
-            "duration_s": round(elapsed, 2),
-            "done_reason": data.get("done_reason", ""),
-            "success": bool(response_text.strip()),
-        }
-    except requests.exceptions.ConnectionError:
-        return {"response": "", "success": False, "error": "Cannot connect to Ollama. Is it running?"}
-    except requests.exceptions.Timeout:
-        return {"response": "", "success": False, "error": f"LLM timeout after {LLM_REQUEST_TIMEOUT}s"}
-    except Exception as e:
-        return {"response": "", "success": False, "error": str(e)}
+            if response_text.strip():
+                return {
+                    "response": response_text,
+                    "tokens_eval": data.get("eval_count", 0),
+                    "tokens_prompt": data.get("prompt_eval_count", 0),
+                    "duration_s": round(elapsed, 2),
+                    "done_reason": data.get("done_reason", ""),
+                    "success": True,
+                }
+            last_error = "Empty response from LLM"
+        except requests.exceptions.ConnectionError:
+            last_error = "Cannot connect to Ollama. Is it running?"
+        except requests.exceptions.Timeout:
+            last_error = f"LLM timeout after {effective_timeout}s"
+        except Exception as e:
+            last_error = str(e)
+
+        # Exponential backoff before retry
+        if attempt < max_retries:
+            backoff = 2 ** (attempt - 1)
+            time.sleep(backoff)
+
+    return {"response": "", "success": False, "error": last_error}
 
 
 def check_llm_health() -> bool:
@@ -178,27 +201,56 @@ def check_llm_health() -> bool:
 #  Security Analysis Prompts
 # ─────────────────────────────────────────────────────────────
 
-SYSTEM_PROMPT = """You are an expert bug bounty hunter analyzing reconnaissance data from a HackerOne program.
-Your task: analyze the provided data chunk and identify potential security findings.
+SYSTEM_PROMPT = """You are an elite bug bounty hunter with deep expertise in web application security, 
+cloud infrastructure, and API hacking. You are analyzing passive reconnaissance data from a 
+HackerOne program. Your analysis must be methodical, precise, and actionable.
 
-Focus on:
-1. VULNERABILITIES: Anything that could be a security issue (misconfigs, exposed endpoints, sensitive data leaks)
-2. INTERESTING TARGETS: Endpoints/subdomains worth deeper manual testing
-3. ATTACK VECTORS: Possible attack chains or exploitation paths
-4. INFORMATION DISCLOSURE: Leaked data, internal paths, API keys, tokens
-5. BUSINESS LOGIC: Unusual patterns suggesting logic flaws
-6. LIST: the domains and logics and vulnerabilities that you can find in the data
+## Your Analysis Methodology (follow this exact order):
 
-CRITICAL RULE: For EVERY finding you MUST include the exact URL, domain, or endpoint from the data that the finding refers to. Never give a finding without citing the specific link/URL/domain.
+### PASS 1 — DISCOVERY
+Scan the data for anything security-relevant:
+- Subdomains/endpoints that suggest internal, staging, dev, or admin infrastructure
+- API endpoints with parameters that may be injectable or lead to IDOR
+- Technology stack indicators (frameworks, servers, CDNs, WAFs)
+- Tokens, keys, secrets, credentials, or anything resembling sensitive data
+- Unusual HTTP headers, status codes, or response patterns
+- Cloud service indicators (S3 buckets, Azure blobs, GCP resources)
+- JavaScript files or endpoints that may expose internal APIs
 
-For each finding:
-- State the finding clearly
-- Cite the EXACT URL / domain / endpoint it refers to (copy it from the data)
-- Explain WHY it's interesting from a security perspective
-- Suggest what manual test to perform next
-- Rate severity: CRITICAL / HIGH / MEDIUM / LOW / INFO
+### PASS 2 — VALIDATION
+For each item found in Pass 1:
+- Could this be a false positive? (e.g., honeypot, intentional exposure, CDN artifact)
+- What is the confidence level? (CONFIRMED / LIKELY / POSSIBLE / SPECULATIVE)
+- Is this in scope per HackerOne rules?
 
-Be concise. Focus on actionable findings only. Skip noise."""
+### PASS 3 — ATTACK CHAIN REASONING
+Connect findings into potential attack chains:
+- Can finding A + finding B be combined for higher impact?
+- What is the realistic exploitation path?
+- What would an attacker do with this information?
+
+## Output Format — For each finding output:
+
+**[SEVERITY] Finding Title**
+- **Target**: exact URL / domain / endpoint (REQUIRED — copy from data)
+- **Confidence**: CONFIRMED / LIKELY / POSSIBLE
+- **Category**: One of: IDOR, XSS, SSRF, SQLi, Auth Bypass, Info Disclosure, 
+  Misconfiguration, Open Redirect, Business Logic, Subdomain Takeover, 
+  API Security, CORS, CSRF, Insecure Deserialization, Command Injection, 
+  Path Traversal, JWT Issues, Cloud Misconfiguration, Other
+- **What**: Clear description of the finding
+- **Why**: Security implication and potential impact
+- **Evidence**: The specific data from this chunk that proves it
+- **Chain Potential**: Can this combine with other vulns? How?
+- **Manual Test**: Exact steps to confirm this finding
+- **CVSS Estimate**: X.X (Base Score estimate)
+
+## Rules:
+- NEVER fabricate URLs or data — only cite what's in the chunk
+- ALWAYS include the exact URL/domain from the data
+- Focus on ACTIONABLE findings — skip informational noise
+- Think like an attacker: what would you test first?
+- Consider business context: payment flows, auth, PII exposure are high-value"""
 
 
 def get_analysis_prompt(filename: str, chunk_idx: int, total_chunks: int,
@@ -206,15 +258,69 @@ def get_analysis_prompt(filename: str, chunk_idx: int, total_chunks: int,
     """Build the analysis prompt for a specific data chunk."""
 
     file_context = {
-        "01_subdomains": "subdomain enumeration results - look for interesting subdomains (dev, staging, admin, api, internal)",
-        "02_dns": "DNS resolution data - look for internal IPs, cloud services, CDNs, interesting CNAME records",
-        "03_urls": "discovered URLs - look for sensitive endpoints, API routes, admin panels, debug pages, parameters",
-        "04_wayback": "Wayback Machine historical URLs - look for old/removed endpoints, leaked paths, parameters",
-        "05_tech": "HTTP response headers - look for technology stack, misconfigurations, missing security headers",
-        "06_services": "service/port information - look for exposed services, version disclosure",
-        "07_js": "JavaScript files and extracted API endpoints - look for hidden APIs, hardcoded secrets, internal routes",
-        "08_param": "discovered parameters - look for injection points, IDOR params, auth bypass params",
-        "09_security": "security header analysis - look for missing protections, CORS issues, cookie problems",
+        "01_subdomains": (
+            "subdomain enumeration results — look for: dev/staging/admin/internal subdomains, "
+            "cloud service subdomains (*.s3.amazonaws.com, *.azurewebsites.net), CNAME records "
+            "pointing to decommissioned services (subdomain takeover), wildcard DNS, zone transfers"
+        ),
+        "02_dns": (
+            "DNS resolution data — look for: internal/RFC1918 IPs leaked in DNS, cloud provider IPs "
+            "(identify hosting), CDN/WAF bypass via direct-to-origin IPs, CNAME chains revealing "
+            "infrastructure, TXT records with SPF/DKIM/DMARC misconfigs, MX records revealing email provider"
+        ),
+        "02b_httpx": (
+            "live HTTP probing results — look for: status codes revealing access control (401/403 on "
+            "interesting paths, 200 on admin panels), redirect chains, different responses per host, "
+            "technology fingerprints in headers (X-Powered-By, Server, X-AspNet-Version)"
+        ),
+        "03_urls": (
+            "discovered URLs — HIGH VALUE: look for: API endpoints with parameters (/api/v1/users?id=), "
+            "admin panels, debug endpoints (/debug, /trace, /actuator), file upload paths, "
+            "OAuth/SSO endpoints, webhook URLs, GraphQL endpoints, sensitive file paths (.env, .git)"
+        ),
+        "04_wayback": (
+            "Wayback Machine / historical URLs — look for: removed endpoints still accessible, "
+            "old API versions (/v1/ when /v2/ is current), leaked parameters no longer in UI, "
+            "backup files (.bak, .old, .swp), config files, old auth flows"
+        ),
+        "04b_katana": (
+            "Katana crawler results — look for: dynamically discovered endpoints not in static recon, "
+            "form action URLs, API calls from JavaScript, hidden parameters, file upload endpoints"
+        ),
+        "04c_hakrawler": (
+            "Hakrawler results — look for: same as katana but may find different endpoints, "
+            "form actions, JS-discovered APIs, linked resources"
+        ),
+        "05_tech": (
+            "HTTP response headers & technology detection — look for: missing security headers "
+            "(CSP, HSTS, X-Frame-Options), server version disclosure, outdated framework versions "
+            "with known CVEs, CORS misconfiguration (Access-Control-Allow-Origin: *), "
+            "cookie issues (missing Secure/HttpOnly/SameSite flags)"
+        ),
+        "06_services": (
+            "service/port scan results — look for: exposed admin services (Redis, MongoDB, "
+            "Elasticsearch, Kibana), development tools (Jupyter, phpMyAdmin), version-specific "
+            "vulnerabilities, services that shouldn't be public"
+        ),
+        "07_js": (
+            "JavaScript files and extracted endpoints — HIGH VALUE: look for: hardcoded API keys, "
+            "AWS credentials, internal API endpoints, authentication logic, hidden admin routes, "
+            "debug endpoints, websocket URLs, internal service URLs, source maps"
+        ),
+        "08_param": (
+            "discovered parameters — HIGH VALUE: look for: ID parameters (user_id, account_id → IDOR), "
+            "URL parameters (redirect, callback, url → SSRF/Open Redirect), search/query params → XSS/SQLi, "
+            "file parameters → LFI/Path Traversal, hidden parameters, debug parameters (debug=1)"
+        ),
+        "09_security": (
+            "security header analysis — look for: complete missing header inventory, CORS policy "
+            "weaknesses, CSP bypass opportunities (unsafe-inline, unsafe-eval, data: URIs), "
+            "cookie security issues, cache-control on sensitive endpoints, HSTS preload status"
+        ),
+        "10_recon": (
+            "recon summary / consolidated data — look for: cross-referencing opportunities between "
+            "different data sources, patterns across multiple subdomains, infrastructure-wide issues"
+        ),
     }
 
     context_hint = "reconnaissance data"
@@ -223,24 +329,47 @@ def get_analysis_prompt(filename: str, chunk_idx: int, total_chunks: int,
             context_hint = hint
             break
 
-    return f"""## Bug Bounty Recon Analysis
+    # Build cross-reference context from previously analyzed files
+    cross_ref = ""
+    try:
+        llm_dir = Path(__file__).resolve().parent.parent / "llm_analysis" / TARGET_DOMAIN.replace(".", "_")
+        if llm_dir.exists():
+            prev_summaries = []
+            for d in sorted(llm_dir.iterdir()):
+                if d.is_dir() and not d.name.startswith(filename.replace(".txt", "")):
+                    merged = d / "_merged_analysis.txt"
+                    if merged.exists():
+                        text = merged.read_text()[:800]  # First 800 chars as context
+                        if text.strip():
+                            prev_summaries.append(f"[{d.name}]: {text[:400]}")
+            if prev_summaries:
+                cross_ref = (
+                    "\n\n## Cross-Reference Context (findings from other recon files):\n"
+                    + "\n".join(prev_summaries[:5])
+                    + "\n\nUse this context to identify connections between this chunk's data "
+                    "and previous findings. Look for attack chains that span multiple data sources."
+                )
+    except Exception as exc:
+        logging.debug(f"Failed to build cross-reference context: {exc}")
+
+    return f"""## Bug Bounty Recon Analysis — Multi-Pass
 **Target:** {TARGET_DOMAIN} (HackerOne program)
 **File:** {filename}
 **Context:** This is {context_hint}
 **Chunk:** {chunk_idx + 1} of {total_chunks}
 
-Analyze this data chunk for security-relevant findings:
+Analyze this data chunk following your 3-pass methodology (Discovery → Validation → Attack Chains).
+{cross_ref}
+
+### Data to Analyze:
 
 ```
 {chunk_text}
 ```
 
-List ALL security-relevant findings. For each:
-1. **Finding**: What you found
-2. **URL/Link**: The EXACT URL, domain, or endpoint from the data this refers to (REQUIRED - copy it from the data above)
-3. **Why interesting**: Security implication
-4. **Next step**: What manual test to do
-5. **Severity**: CRITICAL/HIGH/MEDIUM/LOW/INFO"""
+For EACH finding, output the structured format from your instructions.
+If a finding connects to data from the cross-reference context, explicitly note the chain.
+End your analysis with a "Priority Targets" section listing the top 3 items for immediate manual testing."""
 
 
 # ─────────────────────────────────────────────────────────────
@@ -314,6 +443,10 @@ def process_file(filepath: Path, resume: bool = False) -> dict:
 
     print(f"\n  📄 Processing: {filename}")
     print(f"     Size: {len(content):,} chars | {content.count(chr(10))} lines | {len(chunks)} chunks")
+    if _chunk_timeout:
+        print(f"     Chunk timeout: {_chunk_timeout}s | Skip after {_max_consecutive_failures} consecutive failures")
+
+    consecutive_failures = 0
 
     for chunk in chunks:
         chunk_file = file_output_dir / f"chunk_{chunk['index']:03d}.json"
@@ -321,7 +454,18 @@ def process_file(filepath: Path, resume: bool = False) -> dict:
         # Skip already processed chunks on resume
         if resume and chunk_file.exists():
             print(f"     ⏭  Chunk {chunk['index']+1}/{len(chunks)} already done")
+            consecutive_failures = 0  # reset on existing success
             continue
+
+        # ── Check consecutive failure threshold ──
+        if _max_consecutive_failures > 0 and consecutive_failures >= _max_consecutive_failures:
+            remaining = len(chunks) - chunk["index"]
+            print(f"\n     ⚠️  {consecutive_failures} consecutive failures — "
+                  f"skipping remaining {remaining} chunks of {filename}")
+            state["skipped_reason"] = (
+                f"Skipped after {consecutive_failures} consecutive failures"
+            )
+            break
 
         print(f"     🔍 Chunk {chunk['index']+1}/{len(chunks)} "
               f"({chunk['char_count']} chars, {chunk['line_count']} lines)...", end="", flush=True)
@@ -347,9 +491,9 @@ def process_file(filepath: Path, resume: bool = False) -> dict:
         chunk_file.write_text(json.dumps(chunk_result, indent=2))
 
         # ── Store in DB if available ──
-        if _db_instance and _target_id and _scan_run_id:
+        if _db_instance and _target_id and _scan_id:
             try:
-                _db_instance.store_llm_chunk(_target_id, _scan_run_id, {
+                _db_instance.store_llm_chunk(_target_id, _scan_id, {
                     "source_file": filename,
                     "chunk_index": chunk["index"],
                     "total_chunks": len(chunks),
@@ -365,15 +509,18 @@ def process_file(filepath: Path, resume: bool = False) -> dict:
                     "error": result.get("error", ""),
                     "llm_model": LLM_MODEL,
                 })
-            except Exception:
-                pass
+            except Exception as exc:
+                logging.debug(f"Failed to store chunk analysis in DB: {exc}")
 
         if result["success"]:
             print(f" ✓ ({result['duration_s']}s, {result.get('tokens_eval', 0)} tokens)")
             state["chunks_done"] = chunk["index"] + 1
             state["analyses"].append(chunk_result)
+            consecutive_failures = 0  # reset on success
         else:
-            print(f" ✗ Error: {result.get('error', 'unknown')}")
+            consecutive_failures += 1
+            print(f" ✗ Error: {result.get('error', 'unknown')}"
+                  f" (failures: {consecutive_failures}/{_max_consecutive_failures})")
 
         # Save state after each chunk (for resume capability)
         state_file.write_text(json.dumps(state, indent=2))
@@ -397,15 +544,15 @@ def process_file(filepath: Path, resume: bool = False) -> dict:
             if cdata.get("success") and cdata.get("llm_response"):
                 merged_lines.append(f"\n--- Chunk {cdata['chunk_index']+1} ---")
                 merged_lines.append(cdata["llm_response"])
-        except Exception:
-            pass
+        except Exception as exc:
+            logging.debug(f"Failed to parse chunk data for merging: {exc}")
 
     merge_file.write_text("\n".join(merged_lines) + "\n")
 
     # ── Store merged analysis in DB ──
-    if _db_instance and _target_id and _scan_run_id:
+    if _db_instance and _target_id and _scan_id:
         try:
-            _db_instance.store_llm_analysis(_target_id, _scan_run_id, {
+            _db_instance.store_llm_analysis(_target_id, _scan_id, {
                 "source_file": filename,
                 "merged_text": "\n".join(merged_lines),
                 "chunks_total": len(chunks),
@@ -415,8 +562,8 @@ def process_file(filepath: Path, resume: bool = False) -> dict:
                 "total_duration_s": sum(
                     a.get("duration_s", 0) for a in state.get("analyses", [])),
             })
-        except Exception:
-            pass
+        except Exception as exc:
+            logging.debug(f"Failed to store merged analysis in DB: {exc}")
 
     state["complete"] = True
     state_file.write_text(json.dumps(state, indent=2))
@@ -430,18 +577,26 @@ def process_file(filepath: Path, resume: bool = False) -> dict:
 # ─────────────────────────────────────────────────────────────
 
 def main():
-    global CHUNK_SIZE_CHARS
+    global CHUNK_SIZE_CHARS, _chunk_timeout, _max_consecutive_failures
 
     parser = argparse.ArgumentParser(description="BBHunter LLM Chunk Analyzer")
     parser.add_argument("--file", type=str, help="Analyze a specific file only")
     parser.add_argument("--resume", action="store_true", help="Resume from last checkpoint")
     parser.add_argument("--chunk-size", type=int, default=None, help="Chars per chunk")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be processed")
+    parser.add_argument("--chunk-timeout", type=int, default=None,
+                        help=f"Max seconds per LLM chunk (0=default, current={_chunk_timeout})")
+    parser.add_argument("--max-failures", type=int, default=None,
+                        help=f"Skip file after N consecutive chunk failures (0=never skip, current={_max_consecutive_failures})")
     args = parser.parse_args()
 
     # Override chunk size if specified
     if args.chunk_size is not None:
         CHUNK_SIZE_CHARS = args.chunk_size
+    if args.chunk_timeout is not None:
+        _chunk_timeout = args.chunk_timeout
+    if args.max_failures is not None:
+        _max_consecutive_failures = args.max_failures
 
     ensure_dirs()
 

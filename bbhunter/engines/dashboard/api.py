@@ -10,23 +10,38 @@ Provides endpoints for:
 - Report generation
 - Learning feedback
 - Real-time scan status via WebSocket
+- API-key authentication middleware
 """
 
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime
+import hashlib
+import hmac
+import os
+import secrets
+from datetime import datetime, timezone
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, BackgroundTasks
+from fastapi import (
+    Depends,
+    FastAPI,
+    HTTPException,
+    Request,
+    WebSocket,
+    WebSocketDisconnect,
+    BackgroundTasks,
+    status,
+)
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field
 
 from bbhunter.config import get_config
+from bbhunter.exceptions import AuthorizationError, ScannerError
 from bbhunter.logger import get_logger
-from bbhunter.safety import SafetyGate
+from bbhunter.safety import get_safety_gate
 from bbhunter.models import (
     Target, Asset, Endpoint, Vulnerability, ScanResult,
     Severity, VulnCategory, ScanStatus,
@@ -41,20 +56,64 @@ from bbhunter.engines.reporting.engine import ReportEngine
 from bbhunter.engines.learning.engine import LearningEngine
 
 logger = get_logger()
+_cfg = get_config()
+
+# ─── Security helpers ───────────────────────────────────────────────────
+
+_DEFAULT_SECRET = "CHANGE-ME-IN-PRODUCTION"
+
+
+def _get_api_key() -> str:
+    """Return the active API key, auto-generating one if still the default."""
+    key = _cfg.dashboard.secret_key
+    if key == _DEFAULT_SECRET:
+        # Auto-generate a secure key and warn loudly
+        key = os.environ.get("BBHUNTER_API_KEY", secrets.token_urlsafe(32))
+        logger.warning(
+            "⚠️  Dashboard secret_key is the default. "
+            "Set 'dashboard.secret_key' in config.yaml or BBHUNTER_API_KEY env var. "
+            f"Auto-generated key for this session: {key}"
+        )
+    return key
+
+
+_API_KEY = _get_api_key()
+_api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+
+async def verify_api_key(api_key: str | None = Depends(_api_key_header)) -> str:
+    """Dependency that enforces API-key authentication when enabled."""
+    if not _cfg.dashboard.enable_auth:
+        return "auth-disabled"
+    if not api_key or not hmac.compare_digest(api_key, _API_KEY):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing API key. Pass X-API-Key header.",
+        )
+    return api_key
+
 
 # ─── FastAPI App ────────────────────────────────────────────────────────
 
 app = FastAPI(
     title="BBHunter Dashboard",
     description="Bug Bounty Automation Suite – REST API",
-    version="0.1.0",
+    version="1.0.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
 )
 
+# CORS: restrict to configured host instead of wildcard
+_allowed_origins = [
+    f"http://{_cfg.dashboard.host}:{_cfg.dashboard.port}",
+    f"http://127.0.0.1:{_cfg.dashboard.port}",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -62,7 +121,7 @@ app.add_middleware(
 
 # ─── Global State ───────────────────────────────────────────────────────
 
-safety = SafetyGate()
+safety = get_safety_gate()
 active_scans: dict[str, dict[str, Any]] = {}
 ws_connections: list[WebSocket] = []
 
@@ -97,11 +156,15 @@ class PayloadRequest(BaseModel):
 
 async def broadcast(event: str, data: dict):
     """Broadcast event to all connected WebSocket clients."""
-    msg = {"event": event, "data": data, "timestamp": datetime.utcnow().isoformat()}
+    msg = {"event": event, "data": data, "timestamp": datetime.now(timezone.utc).isoformat()}
+    disconnected: list[WebSocket] = []
     for ws in ws_connections[:]:
         try:
             await ws.send_json(msg)
-        except Exception:
+        except (WebSocketDisconnect, RuntimeError):
+            disconnected.append(ws)
+    for ws in disconnected:
+        if ws in ws_connections:
             ws_connections.remove(ws)
 
 
@@ -109,23 +172,24 @@ async def broadcast(event: str, data: dict):
 
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "timestamp": datetime.utcnow().isoformat()}
+    return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
 
 
 # ─── Targets ────────────────────────────────────────────────────────────
 
 @app.post("/api/targets", status_code=201)
-async def create_target(body: TargetCreate):
+async def create_target(body: TargetCreate, _key: str = Depends(verify_api_key)):
     """Register a new target for scanning."""
     try:
         safety.check(body.domain)
-    except Exception as exc:
+    except AuthorizationError as exc:
         raise HTTPException(403, detail=str(exc))
 
+    from bbhunter.models import ScopeRule
     target = Target(
         domain=body.domain,
-        program=body.program,
-        scope_patterns=body.scope_patterns,
+        scope=ScopeRule(include=body.scope_patterns),
+        rules={"program": body.program},
     )
     return {"id": target.id, "domain": target.domain, "created": True}
 
@@ -133,14 +197,14 @@ async def create_target(body: TargetCreate):
 # ─── Reconnaissance ────────────────────────────────────────────────────
 
 @app.post("/api/recon")
-async def start_recon(body: ScanRequest, background_tasks: BackgroundTasks):
+async def start_recon(body: ScanRequest, background_tasks: BackgroundTasks, _key: str = Depends(verify_api_key)):
     """Launch passive + active recon against a target."""
     try:
         safety.check(body.target_domain)
-    except Exception as exc:
+    except AuthorizationError as exc:
         raise HTTPException(403, detail=str(exc))
 
-    scan_id = f"recon-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+    scan_id = f"recon-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
     active_scans[scan_id] = {"status": "running", "type": "recon", "target": body.target_domain}
 
     async def _run():
@@ -155,6 +219,7 @@ async def start_recon(body: ScanRequest, background_tasks: BackgroundTasks):
             }
             await broadcast("recon_complete", active_scans[scan_id])
         except Exception as e:
+            logger.error(f"Background task failed: {e}")
             active_scans[scan_id]["status"] = "error"
             active_scans[scan_id]["error"] = str(e)
             await broadcast("recon_error", active_scans[scan_id])
@@ -166,14 +231,14 @@ async def start_recon(body: ScanRequest, background_tasks: BackgroundTasks):
 # ─── Surface Mapping ───────────────────────────────────────────────────
 
 @app.post("/api/surface")
-async def start_surface_mapping(body: ScanRequest, background_tasks: BackgroundTasks):
+async def start_surface_mapping(body: ScanRequest, background_tasks: BackgroundTasks, _key: str = Depends(verify_api_key)):
     """Map the attack surface of a target."""
     try:
         safety.check(body.target_domain)
-    except Exception as exc:
+    except AuthorizationError as exc:
         raise HTTPException(403, detail=str(exc))
 
-    scan_id = f"surface-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+    scan_id = f"surface-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
     active_scans[scan_id] = {"status": "running", "type": "surface", "target": body.target_domain}
 
     async def _run():
@@ -188,6 +253,7 @@ async def start_surface_mapping(body: ScanRequest, background_tasks: BackgroundT
             }
             await broadcast("surface_complete", active_scans[scan_id])
         except Exception as e:
+            logger.error(f"Background task failed: {e}")
             active_scans[scan_id]["status"] = "error"
             active_scans[scan_id]["error"] = str(e)
 
@@ -198,14 +264,14 @@ async def start_surface_mapping(body: ScanRequest, background_tasks: BackgroundT
 # ─── Vulnerability Scanner ─────────────────────────────────────────────
 
 @app.post("/api/scan")
-async def start_vulnerability_scan(body: ScanRequest, background_tasks: BackgroundTasks):
+async def start_vulnerability_scan(body: ScanRequest, background_tasks: BackgroundTasks, _key: str = Depends(verify_api_key)):
     """Launch vulnerability scanner against discovered endpoints."""
     try:
         safety.check(body.target_domain)
-    except Exception as exc:
+    except AuthorizationError as exc:
         raise HTTPException(403, detail=str(exc))
 
-    scan_id = f"scan-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+    scan_id = f"scan-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
     active_scans[scan_id] = {"status": "running", "type": "vuln_scan", "target": body.target_domain}
 
     async def _run():
@@ -222,6 +288,7 @@ async def start_vulnerability_scan(body: ScanRequest, background_tasks: Backgrou
             }
             await broadcast("scan_complete", active_scans[scan_id])
         except Exception as e:
+            logger.error(f"Background task failed: {e}")
             active_scans[scan_id]["status"] = "error"
             active_scans[scan_id]["error"] = str(e)
 
@@ -232,14 +299,14 @@ async def start_vulnerability_scan(body: ScanRequest, background_tasks: Backgrou
 # ─── Full Pipeline ──────────────────────────────────────────────────────
 
 @app.post("/api/scan/full")
-async def start_full_scan(body: ScanRequest, background_tasks: BackgroundTasks):
+async def start_full_scan(body: ScanRequest, background_tasks: BackgroundTasks, _key: str = Depends(verify_api_key)):
     """Run complete pipeline: recon → surface → scan → analysis → report."""
     try:
         safety.check(body.target_domain)
-    except Exception as exc:
+    except AuthorizationError as exc:
         raise HTTPException(403, detail=str(exc))
 
-    scan_id = f"full-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+    scan_id = f"full-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
     active_scans[scan_id] = {
         "status": "running",
         "type": "full",
@@ -282,19 +349,26 @@ async def start_full_scan(body: ScanRequest, background_tasks: BackgroundTasks):
             active_scans[scan_id]["phase"] = "reporting"
             await broadcast("phase_change", {"scan_id": scan_id, "phase": "reporting"})
             reporter = ReportEngine()
-            report = await reporter.generate_all_reports(domain, analysis)
+            verified_vulns = analysis.get("verified_vulnerabilities", vulns)
+            chains = analysis.get("exploit_chains", [])
+            report = reporter.generate_all_reports(
+                domain, verified_vulns, chains, analysis
+            )
 
             active_scans[scan_id]["status"] = "complete"
             active_scans[scan_id]["phase"] = "done"
             active_scans[scan_id]["results"] = {
                 "subdomains_found": len(subdomains),
                 "endpoints_mapped": len(endpoints),
-                "vulnerabilities": len(vulns),
+                "vulnerabilities_count": len(verified_vulns),
+                "verified_vulnerabilities": verified_vulns,
+                "exploit_chains": chains,
                 "report": report,
             }
             await broadcast("full_scan_complete", active_scans[scan_id])
 
         except Exception as e:
+            logger.error(f"Background task failed: {e}")
             active_scans[scan_id]["status"] = "error"
             active_scans[scan_id]["error"] = str(e)
             await broadcast("scan_error", active_scans[scan_id])
@@ -322,17 +396,32 @@ async def get_scan(scan_id: str):
 # ─── Analysis ───────────────────────────────────────────────────────────
 
 @app.post("/api/analysis")
-async def analyze_vulnerabilities(vulns: list[dict]):
+async def analyze_vulnerabilities(vulns: list[dict], _key: str = Depends(verify_api_key)):
     """Run intelligent analysis on a set of vulnerability findings."""
+    # Convert raw dicts to Vulnerability model objects
+    vuln_objects = []
+    for v in vulns:
+        try:
+            vuln_objects.append(Vulnerability(**v))
+        except Exception as exc:
+            logger.debug(f"Vulnerability model construction failed, using fallback: {exc}")
+            vuln_objects.append(Vulnerability(
+                target_id=v.get("target_id", "unknown"),
+                category=VulnCategory(v.get("category", "other")),
+                severity=Severity(v.get("severity", "informational")),
+                title=v.get("title", "Unknown"),
+                url=v.get("url", ""),
+                confidence=float(v.get("confidence", 0.5)),
+            ))
     analyzer = AnalysisEngine()
-    results = await analyzer.run(vulns)
+    results = await analyzer.run(vuln_objects)
     return results
 
 
 # ─── Payloads ───────────────────────────────────────────────────────────
 
 @app.post("/api/payloads")
-async def generate_payloads(body: PayloadRequest):
+async def generate_payloads(body: PayloadRequest, _key: str = Depends(verify_api_key)):
     """Generate context-aware payloads."""
     engine = PayloadEngine()
     payloads = engine.generate(
@@ -355,25 +444,35 @@ async def generate_report(scan_id: str, template: str = "hackerone"):
         raise HTTPException(400, detail="Scan not yet complete")
 
     reporter = ReportEngine()
-    vulns = scan.get("results", {}).get("vulnerabilities", [])
-    report = await reporter.generate_vulnerability_report(
-        scan["target"], vulns, template=template
-    )
-    return {"report": report}
+    results = scan.get("results", {})
+    report_data = results.get("report", [])
+    if report_data:
+        return {"report": report_data}
+    # Fallback: re-generate from stored vulnerabilities
+    vulns = results.get("vulnerabilities", [])
+    if isinstance(vulns, list) and vulns:
+        verified = results.get("verified_vulnerabilities", vulns)
+        chains = results.get("exploit_chains", [])
+        reports = reporter.generate_all_reports(
+            scan["target"], verified, chains, results
+        )
+        return {"report": reports}
+    return {"report": []}
 
 
 # ─── Feedback / Learning ───────────────────────────────────────────────
 
 @app.post("/api/feedback")
-async def submit_feedback(body: FeedbackRequest):
+async def submit_feedback(body: FeedbackRequest, _key: str = Depends(verify_api_key)):
     """Submit TP / FP feedback to the learning engine."""
     engine = LearningEngine()
     engine.record_feedback(
         vulnerability=Vulnerability(
             id=body.vulnerability_id,
+            target_id="feedback",
             title="",
             category=VulnCategory.OTHER,
-            severity=Severity.INFO,
+            severity=Severity.INFORMATIONAL,
             url="",
         ),
         is_true_positive=body.is_true_positive,
@@ -392,14 +491,24 @@ async def learning_stats():
 # ─── Assistant ──────────────────────────────────────────────────────────
 
 @app.post("/api/assistant/vectors")
-async def suggest_vectors(endpoint: dict):
+async def suggest_vectors(endpoint: dict, _key: str = Depends(verify_api_key)):
     """Get attack vector suggestions for an endpoint."""
+    # Convert raw dict to Endpoint model
+    try:
+        ep = Endpoint(**endpoint)
+    except Exception as exc:
+        logger.debug(f"Endpoint model construction failed, using fallback: {exc}")
+        ep = Endpoint(
+            target_id=endpoint.get("target_id", "unknown"),
+            url=endpoint.get("url", ""),
+            method=endpoint.get("method", "GET"),
+        )
     assistant = ManualTestingAssistant()
-    return assistant.suggest_attack_vectors(endpoint)
+    return assistant.suggest_attack_vectors(ep)
 
 
 @app.post("/api/assistant/decode")
-async def decode_data(body: dict):
+async def decode_data(body: dict, _key: str = Depends(verify_api_key)):
     """Decode encoded data (base64, JWT, URL, hex)."""
     assistant = ManualTestingAssistant()
     return assistant.decode_data(body.get("data", ""))

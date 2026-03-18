@@ -141,3 +141,55 @@ api_keys:
   censys_secret: "${CENSYS_API_SECRET}"
   virustotal: "${VIRUSTOTAL_API_KEY}"
   github_token: "${GITHUB_TOKEN}"
+
+# --- LLM Configuration (Ollama) ---
+llm:
+  api_url: "${LLM_API_URL:-http://localhost:11434}"
+  model: "${LLM_MODEL:-dolphin-llama3:8b}"
+  chunk_size_chars: 3000
+  chunk_overlap_chars: 200
+  max_response_tokens: 2048
+  temperature: 0.3
+  request_timeout: 300
+  num_ctx: 4096              # Context window size (4K safe for 4GB VRAM)
+  num_batch: 256             # Batch size for Ollama inference
+
+# --- Pipeline Configuration ---
+pipeline:
+  target_domain: "${BB_TARGET:-doordash.com}"
+  program_name: "${BB_PROGRAM:-HackerOne - DoorDash}"
+  data_dir: "./data"
+  llm_output_dir: "./llm_analysis"
+  reports_dir: "./reports"
+  logs_dir: "./logs"
+  step_timeout: 600          # Max seconds per recon tool step (0=no limit)
+  llm_chunk_timeout: 300     # Max seconds per LLM chunk request (0=use llm.request_timeout)
+  max_consecutive_failures: 3 # Skip to next file/step after N consecutive failures
+
+# --- Target-Specific Rules ---
+target_rules:
+  no_automated_scanners: true
+  no_brute_force: true
+  no_dos: true
+  required_header: "X-Bug-Bounty: researcher-handle"
+  in_scope:
+    - "www.doordash.com"
+    - "doordash.com"
+  out_of_scope_domains:
+    - "unified-gateway.doordash.com"
+    - "track.doordash.com"
+    - "merchant-portal.doordash.com"
+    - "merchant-mobile-bff.doordash.com"
+    - "ir.doordash.com"
+    - "internal.doordash.com"
+    - "consumer-mobile-bff.doordash.com"
+    - "careersatdoordash.com"
+    - "help.doordash.com"
+  out_of_scope_wildcards:
+    - "*.order.online"
+    - "*.doorcrawl.com"
+    - "*.dashapi.com"
+  out_of_scope_paths:
+    - "/merchant/*"
+    - "/unified-gateway/*"
+    - "/orders/drive/*"

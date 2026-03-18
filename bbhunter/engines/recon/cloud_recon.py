@@ -101,8 +101,8 @@ class CloudAssetDiscovery:
                                         "provider": "aws",
                                     },
                                 ))
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.debug(f"S3 bucket check failed: {exc}")
 
         bucket_names = set()
         for pattern in self.S3_PATTERNS:
@@ -132,8 +132,8 @@ class CloudAssetDiscovery:
                                 "provider": "azure",
                             },
                         ))
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug(f"Azure blob check failed: {exc}")
 
         names = set()
         for pattern in self.AZURE_PATTERNS:
@@ -163,8 +163,8 @@ class CloudAssetDiscovery:
                                 "provider": "gcp",
                             },
                         ))
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug(f"GCP bucket check failed: {exc}")
 
         names = set()
         for pattern in self.GCP_PATTERNS:

@@ -30,25 +30,25 @@ from config import (
     TARGET_DOMAIN, TARGET_DIR, TARGET_LLM_DIR, TARGET_REPORT_DIR,
     LLM_API_URL, LLM_MODEL, CHUNK_SIZE_CHARS,
     MAX_RESPONSE_TOKENS, LLM_TEMPERATURE, LLM_REQUEST_TIMEOUT,
-    DOORDASH_RULES, ensure_dirs,
+    DOORDASH_RULES, ensure_dirs, PROGRAM_NAME,
 )
 from llm_analyzer import query_llm, chunk_text, check_llm_health
 
 # ── DB integration ──
 _db = None
 _target_id = ""
-_scan_run_id = ""
+_scan_id = ""
 
 def init_report_db():
     """Initialize DB for report generation."""
-    global _db, _target_id, _scan_run_id
+    global _db, _target_id, _scan_id
     try:
         from db_manager import get_db
         _db = get_db()
         _target_id = _db.get_target_id(TARGET_DOMAIN)
         if not _target_id:
             _target_id = _db.upsert_target(TARGET_DOMAIN)
-        _scan_run_id = _db.start_scan_run(_target_id, "report_generation")
+        _scan_id = _db.start_scan(_target_id, "report_generation")
         print(f"  💾 DB connected: {_db.db_path}")
     except Exception as e:
         print(f"  ⚠️  DB not available: {e}")
@@ -99,23 +99,34 @@ def collect_analyses() -> list[dict]:
 #  Phase 2: Extract structured findings chunk by chunk
 # ─────────────────────────────────────────────────────────────
 
-EXTRACT_PROMPT = """You are consolidating bug bounty analysis findings.
+EXTRACT_PROMPT = """You are an expert bug bounty triage analyst extracting structured findings.
 
-Below is a chunk of LLM analysis output from reconnaissance on {domain}.
-Extract ALL security findings into a structured list.
+Below is a chunk of LLM analysis output from passive reconnaissance on {domain}.
+Your job: extract EVERY security-relevant finding into a strict structured format.
+
+## Extraction Rules:
+1. One finding = one distinct vulnerability or security issue
+2. Merge closely related sub-findings into one finding
+3. Assign confidence based on evidence strength
+4. Estimate CVSS 3.1 base score for each finding
+5. Identify which findings can chain together
 
 For each finding, output EXACTLY this format:
 ---FINDING---
-Title: <concise title>
+Title: <concise, specific title -- include affected asset>
 Severity: <CRITICAL|HIGH|MEDIUM|LOW|INFO>
-Category: <IDOR|XSS|SSRF|Auth Bypass|Info Disclosure|Misconfiguration|Open Redirect|Business Logic|Subdomain Takeover|API Security|Other>
-Description: <what was found>
-Evidence: <the specific data/URL/header that proves it>
-Impact: <what an attacker could do>
-Next Steps: <manual test to confirm>
+CVSS: <X.X -- estimate CVSS 3.1 base score>
+Confidence: <CONFIRMED|LIKELY|POSSIBLE|SPECULATIVE>
+Category: <IDOR|XSS|SSRF|SQLi|Auth Bypass|Info Disclosure|Misconfiguration|Open Redirect|Business Logic|Subdomain Takeover|API Security|CORS|CSRF|JWT Issues|Cloud Misconfig|Path Traversal|Command Injection|Other>
+Asset: <the specific URL/subdomain/endpoint>
+Description: <what was found -- be specific>
+Evidence: <the exact data/URL/header proving it -- copy from the analysis>
+Impact: <realistic attack scenario -- what could an attacker achieve?>
+Chain: <can this combine with other findings? which ones and how?>
+Next Steps: <specific manual test commands (curl/burp/browser) to confirm>
 ---END---
 
-If no security findings exist in this chunk, output: NO_FINDINGS
+If NO security findings exist in this chunk, output: NO_FINDINGS
 
 Analysis chunk:
 ```
@@ -125,22 +136,67 @@ Analysis chunk:
 CONSOLIDATE_PROMPT = """You are writing a professional HackerOne bug bounty report for {domain}.
 
 Below are ALL extracted security findings from passive reconnaissance.
-Create a FINAL REPORT in Markdown format following HackerOne standards.
+Create a FINAL REPORT in Markdown format following HackerOne professional standards.
 
-Requirements:
-1. Deduplicate findings (merge similar ones)
-2. Sort by severity (CRITICAL → INFO)
-3. For each unique finding, include:
-   - Title
-   - Severity & CVSS estimate
-   - Description
-   - Steps to Reproduce (based on evidence)
-   - Impact
-   - Remediation recommendation
-4. Add an Executive Summary at the top
-5. Add a Methodology section
-6. Add a Scope section referencing the HackerOne DoorDash program
-7. Note that ALL testing was PASSIVE ONLY (no active scanning per program rules)
+## Report Structure (follow this exactly):
+
+### 1. Executive Summary
+- Total findings by severity (table: Critical/High/Medium/Low/Info with counts)
+- Top 3 most impactful findings (one sentence each)
+- Overall security posture assessment (1 paragraph)
+
+### 2. Scope & Methodology
+- Target: {domain} (HackerOne program)
+- WARNING: ALL testing was PASSIVE ONLY (no active scanning per program rules)
+- Tools used: subfinder, amass, gau, waybackurls, httpx, katana, hakrawler, dnsx
+- Analysis: AI-assisted with manual validation
+
+### 3. Findings (sorted by CVSS score descending)
+For EACH unique finding:
+
+#### [SEVERITY] Finding Title
+| Field | Value |
+|-------|-------|
+| CVSS Score | X.X |
+| Category | ... |
+| Affected Asset | exact URL/endpoint |
+| Confidence | CONFIRMED/LIKELY/POSSIBLE |
+
+**Description:** What was found and why it matters
+
+**Evidence:**
+```
+<exact evidence from recon data>
+```
+
+**Impact:** Realistic attack scenario
+
+**Steps to Reproduce:**
+1. Step-by-step instructions
+2. Include curl commands where possible
+
+**Attack Chain Potential:** How this combines with other findings
+
+**Remediation:**
+- Specific fix recommendation
+- Industry standard reference (OWASP, CWE)
+
+### 4. Attack Chain Analysis
+- Map connected findings into exploitation paths
+- Show: Finding A -> Finding B -> Impact
+- Prioritize chains by combined CVSS impact
+
+### 5. Recommendations (Priority Order)
+- Immediate (Critical/High findings)
+- Short-term (Medium findings)
+- Long-term (Hardening)
+
+## Deduplication Rules:
+- Merge findings with identical root causes
+- Keep the most detailed description
+- Combine evidence from all instances
+- Use highest severity among duplicates
+- List all affected assets under one finding
 
 Findings to consolidate:
 ```
@@ -251,7 +307,7 @@ def generate_no_findings_report() -> str:
     """Generate a report when no findings were extracted."""
     return f"""# Bug Bounty Passive Reconnaissance Report
 ## Target: {TARGET_DOMAIN}
-## Program: HackerOne - DoorDash
+## Program: {PROGRAM_NAME}
 ## Date: {datetime.now(timezone.utc).strftime('%Y-%m-%d')}
 
 ---
@@ -319,7 +375,7 @@ def save_report(report_md: str, findings: list[str], fmt: str = "markdown"):
 *Report generated by BBHunter Automation Suite*
 *LLM: {LLM_MODEL}*
 *Date: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}*
-*Mode: Passive reconnaissance only — no automated scanners used*
+*Mode: Passive reconnaissance only -- no automated scanners used*
 """
     md_file.write_text(full_report)
     print(f"\n  📝 Markdown report: {md_file}")
@@ -328,7 +384,7 @@ def save_report(report_md: str, findings: list[str], fmt: str = "markdown"):
     json_file = TARGET_REPORT_DIR / f"{base_name}_findings.json"
     json_data = {
         "target": TARGET_DOMAIN,
-        "program": "HackerOne - DoorDash",
+        "program": PROGRAM_NAME,
         "date": datetime.now(timezone.utc).isoformat(),
         "llm_model": LLM_MODEL,
         "methodology": "passive_recon_only",
@@ -350,10 +406,10 @@ def save_report(report_md: str, findings: list[str], fmt: str = "markdown"):
                 for v in parsed:
                     v["source"] = "report_extraction"
                 vuln_count += _db.store_vulnerabilities(
-                    _target_id, _scan_run_id, parsed)
+                    _target_id, _scan_id, parsed)
             _db.log_action("report_saved", TARGET_DOMAIN,
                            details={"file": str(md_file), "vulns_stored": vuln_count},
-                           scan_run_id=_scan_run_id)
+                           scan_id=_scan_id)
             print(f"  💾 {vuln_count} structured findings → DB")
 
             # Store DB stats
@@ -370,30 +426,35 @@ def save_report(report_md: str, findings: list[str], fmt: str = "markdown"):
             import markdown
             html_content = markdown.markdown(report_md, extensions=["tables", "fenced_code"])
             html_file = TARGET_REPORT_DIR / f"{base_name}.html"
-            html_template = f"""<!DOCTYPE html>
-<html><head>
-<meta charset="utf-8">
-<title>BBHunter Report - {TARGET_DOMAIN}</title>
-<style>
-body {{ font-family: -apple-system, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; }}
-h1 {{ color: #d32f2f; border-bottom: 2px solid #d32f2f; }}
-h2 {{ color: #1565c0; }}
-h3 {{ color: #2e7d32; }}
-code {{ background: #f5f5f5; padding: 2px 6px; border-radius: 3px; }}
-pre {{ background: #263238; color: #aed581; padding: 16px; border-radius: 8px; overflow-x: auto; }}
-table {{ border-collapse: collapse; width: 100%; }}
-th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-th {{ background: #1565c0; color: white; }}
-.critical {{ color: #d32f2f; font-weight: bold; }}
-.high {{ color: #f57c00; font-weight: bold; }}
-.medium {{ color: #fbc02d; font-weight: bold; }}
-.low {{ color: #388e3c; }}
-</style>
-</head><body>{html_content}</body></html>"""
+            # Build HTML template without f-string to avoid CSS/f-string conflicts
+            css = (
+                "body { font-family: -apple-system, sans-serif; max-width: 900px;"
+                " margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; }\n"
+                "h1 { color: #d32f2f; border-bottom: 2px solid #d32f2f; }\n"
+                "h2 { color: #1565c0; }\n"
+                "h3 { color: #2e7d32; }\n"
+                "code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; }\n"
+                "pre { background: #263238; color: #aed581; padding: 16px;"
+                " border-radius: 8px; overflow-x: auto; }\n"
+                "table { border-collapse: collapse; width: 100%; }\n"
+                "th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }\n"
+                "th { background: #1565c0; color: white; }\n"
+                ".critical { color: #d32f2f; font-weight: bold; }\n"
+                ".high { color: #f57c00; font-weight: bold; }\n"
+                ".medium { color: #fbc02d; font-weight: bold; }\n"
+                ".low { color: #388e3c; }"
+            )
+            html_template = (
+                "<!DOCTYPE html>\n<html><head>\n"
+                '<meta charset="utf-8">\n'
+                f"<title>BBHunter Report - {TARGET_DOMAIN}</title>\n"
+                f"<style>\n{css}\n</style>\n"
+                f"</head><body>{html_content}</body></html>"
+            )
             html_file.write_text(html_template)
-            print(f"  🌐 HTML report: {html_file}")
+            print(f"  HTML report: {html_file}")
         except ImportError:
-            print("  ⚠️  Install 'markdown' package for HTML output: pip install markdown")
+            print("  Install 'markdown' package for HTML output: pip install markdown")
 
     return md_file
 

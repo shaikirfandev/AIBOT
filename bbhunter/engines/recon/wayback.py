@@ -125,10 +125,10 @@ class WaybackScraper:
                             url = entry.get("url", "")
                             if self._is_interesting_url(url):
                                 urls.add(url)
-                        except Exception:
-                            pass
-        except Exception:
-            pass
+                        except Exception as exc:
+                            logger.debug(f"Failed to parse wayback entry: {exc}")
+        except Exception as exc:
+            logger.debug(f"Wayback URL fetch failed: {exc}")
         
         return urls
 

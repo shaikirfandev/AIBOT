@@ -12,7 +12,7 @@ Orchestrates all vulnerability scanning modules:
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from bbhunter.config import get_config
@@ -47,6 +47,7 @@ class VulnerabilityScanner:
     
     Coordinates all vulnerability testing modules and produces
     a comprehensive list of findings.
+    Injects PayloadEngine and LearningEngine into scanners that support them.
     """
 
     def __init__(self):
@@ -64,12 +65,31 @@ class VulnerabilityScanner:
             "jwt": JWTScanner(),
             "auth": AuthScanner(),
         }
+        self._payload_engine: Any = None
+        self._learning_engine: Any = None
+
+    def set_payload_engine(self, engine: Any):
+        """Inject PayloadEngine for WAF-aware payload generation."""
+        self._payload_engine = engine
+        # Propagate to scanners that accept it
+        for scanner in self.scanners.values():
+            if hasattr(scanner, "set_payload_engine"):
+                scanner.set_payload_engine(engine)
+
+    def set_learning_engine(self, engine: Any):
+        """Inject LearningEngine for effectiveness tracking."""
+        self._learning_engine = engine
+        # Propagate to scanners that accept it
+        for scanner in self.scanners.values():
+            if hasattr(scanner, "set_learning_engine"):
+                scanner.set_learning_engine(engine)
 
     async def run(
         self,
         domain: str,
         endpoints: list[Endpoint],
         categories: list[str] | None = None,
+        scanners: list[str] | None = None,
     ) -> ScanResult:
         """
         Execute vulnerability scanning against discovered endpoints.
@@ -81,11 +101,15 @@ class VulnerabilityScanner:
         """
         target = self.safety.check(domain, action="vulnerability_scan")
         
+        # Accept both 'categories' and 'scanners' keyword for compatibility
+        if categories is None and scanners is not None:
+            categories = scanners
+
         scan = ScanResult(
             target_id=target.id,
             scan_type="vuln_scan",
             status=ScanStatus.RUNNING,
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
         )
         action_logger.log_scan_start("vuln_scan", domain)
         logger.info(f"🔫 Starting vulnerability scan: {domain} ({len(endpoints)} endpoints)")
@@ -117,14 +141,14 @@ class VulnerabilityScanner:
                     logger.error(f"  ❌ {category} scanner error: {e}")
 
             scan.status = ScanStatus.COMPLETED
-            scan.completed_at = datetime.utcnow()
+            scan.completed_at = datetime.now(timezone.utc)
             scan.vulnerabilities_found = len(all_vulns)
 
         except Exception as e:
             scan.status = ScanStatus.FAILED
             scan.errors.append(str(e))
 
-        scan.metadata["vulnerabilities"] = [v.model_dump() for v in all_vulns]
+        scan.metadata["vulnerabilities"] = list(all_vulns)
         action_logger.log_scan_end("vuln_scan", domain, len(all_vulns))
         logger.info(f"✅ Vulnerability scan complete: {len(all_vulns)} findings")
 

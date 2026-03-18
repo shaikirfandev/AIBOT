@@ -1,0 +1,631 @@
+2026-03-18 10:23:01,758 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:23:31,776 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:41,175 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:45,448 [WARNING] bbhunter: ⚠️  Dashboard secret_key is the default. Set 'dashboard.secret_key' in config.yaml or BBHUNTER_API_KEY env var. Auto-generated key for this session: wU_VzCFa_X7O10tPc-2ptGDmDDGy-0wvqktCN1VhObQ
+2026-03-18 10:26:45,458 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:54,312 [INFO] bbhunter: 🧠 Analyzing 0 findings...
+2026-03-18 10:26:54,320 [INFO] bbhunter:   After FP reduction: 0 findings
+2026-03-18 10:26:54,322 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 10:26:54,332 [INFO] bbhunter: 🧠 Analyzing 2 findings...
+2026-03-18 10:26:54,334 [INFO] bbhunter:   After FP reduction: 2 findings
+2026-03-18 10:26:54,336 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 10:26:54,911 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,588 [INFO] bbhunter: 📝 Feedback recorded: Test XSS Finding → TRUE POSITIVE
+2026-03-18 10:26:55,596 [INFO] bbhunter: 📚 Loaded 1 training samples
+2026-03-18 10:26:55,688 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 10:26:55,700 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:26:55,705 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:26:55,720 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 10:26:55,731 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:26:55,733 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:26:55,749 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:26:55,751 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:26:55,763 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,772 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,790 [INFO] bbhunter: ✅ Authorization confirmed for: example.com
+2026-03-18 10:26:55,800 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,802 [INFO] bbhunter: ✅ Authorization confirmed for: sub.example.com
+2026-03-18 10:26:55,811 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,821 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,833 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,842 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,853 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,865 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,877 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,882 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:26:55,884 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 10:26:55,886 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:26:55,899 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,903 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:26:55,905 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:26:55,918 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,931 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,944 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:26:55,948 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:26:55,950 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 10:26:55,951 [ERROR] bbhunter:   ❌ xss scanner error: boom
+2026-03-18 10:26:55,953 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:27:34,260 [INFO] bbhunter: 🧠 Analyzing 0 findings...
+2026-03-18 10:27:34,267 [INFO] bbhunter:   After FP reduction: 0 findings
+2026-03-18 10:27:34,269 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 10:27:34,279 [INFO] bbhunter: 🧠 Analyzing 2 findings...
+2026-03-18 10:27:34,281 [INFO] bbhunter:   After FP reduction: 2 findings
+2026-03-18 10:27:34,283 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 10:27:34,391 [INFO] bbhunter: 📚 Loaded 1 training samples
+2026-03-18 10:27:34,727 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,401 [INFO] bbhunter: 📚 Loaded 1 training samples
+2026-03-18 10:27:35,409 [INFO] bbhunter: 📚 Loaded 1 training samples
+2026-03-18 10:27:35,416 [INFO] bbhunter: 📚 Loaded 1 training samples
+2026-03-18 10:27:35,419 [INFO] bbhunter: 📝 Feedback recorded: Test XSS Finding → TRUE POSITIVE
+2026-03-18 10:27:35,427 [INFO] bbhunter: 📚 Loaded 2 training samples
+2026-03-18 10:27:35,509 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 10:27:35,521 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:27:35,524 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:27:35,538 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 10:27:35,548 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:27:35,550 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:27:35,567 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:27:35,569 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:27:35,580 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,589 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,594 [INFO] bbhunter: ✅ Authorization confirmed for: example.com
+2026-03-18 10:27:35,603 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,605 [INFO] bbhunter: ✅ Authorization confirmed for: sub.example.com
+2026-03-18 10:27:35,614 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,623 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,635 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,644 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,653 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,667 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,681 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,685 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:27:35,687 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 10:27:35,689 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:27:35,702 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,706 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:27:35,708 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:27:35,720 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,731 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,744 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:35,748 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:27:35,750 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 10:27:35,751 [ERROR] bbhunter:   ❌ xss scanner error: boom
+2026-03-18 10:27:35,753 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:27:44,749 [INFO] bbhunter: 🧠 Analyzing 0 findings...
+2026-03-18 10:27:44,763 [INFO] bbhunter:   After FP reduction: 0 findings
+2026-03-18 10:27:44,766 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 10:27:44,777 [INFO] bbhunter: 🧠 Analyzing 2 findings...
+2026-03-18 10:27:44,779 [INFO] bbhunter:   After FP reduction: 2 findings
+2026-03-18 10:27:44,781 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 10:27:44,894 [INFO] bbhunter: 📚 Loaded 2 training samples
+2026-03-18 10:27:45,248 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:45,878 [INFO] bbhunter: 📚 Loaded 2 training samples
+2026-03-18 10:27:45,885 [INFO] bbhunter: 📚 Loaded 2 training samples
+2026-03-18 10:27:45,892 [INFO] bbhunter: 📚 Loaded 2 training samples
+2026-03-18 10:27:45,895 [INFO] bbhunter: 📝 Feedback recorded: Test XSS Finding → TRUE POSITIVE
+2026-03-18 10:27:45,903 [INFO] bbhunter: 📚 Loaded 3 training samples
+2026-03-18 10:27:45,987 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 10:27:45,999 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:27:46,002 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:27:46,015 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 10:27:46,026 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:27:46,028 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:27:46,044 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:27:46,046 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:27:46,058 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:46,068 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:46,073 [INFO] bbhunter: ✅ Authorization confirmed for: example.com
+2026-03-18 10:27:46,082 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:46,084 [INFO] bbhunter: ✅ Authorization confirmed for: sub.example.com
+2026-03-18 10:27:46,092 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:46,101 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:46,112 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:46,121 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:46,129 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:46,141 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:46,153 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:46,158 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:27:46,160 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 10:27:46,161 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:27:46,175 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:46,179 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:27:46,181 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:27:46,193 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:46,204 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:46,216 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:27:46,220 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:27:46,222 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 10:27:46,223 [ERROR] bbhunter:   ❌ xss scanner error: boom
+2026-03-18 10:27:46,225 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:28:29,121 [INFO] bbhunter: 🧠 Analyzing 0 findings...
+2026-03-18 10:28:29,128 [INFO] bbhunter:   After FP reduction: 0 findings
+2026-03-18 10:28:29,131 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 10:28:29,142 [INFO] bbhunter: 🧠 Analyzing 2 findings...
+2026-03-18 10:28:29,145 [INFO] bbhunter:   After FP reduction: 2 findings
+2026-03-18 10:28:29,147 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 10:28:29,271 [INFO] bbhunter: 📚 Loaded 3 training samples
+2026-03-18 10:28:29,624 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,326 [INFO] bbhunter: 📚 Loaded 3 training samples
+2026-03-18 10:28:30,336 [INFO] bbhunter: 📚 Loaded 3 training samples
+2026-03-18 10:28:30,343 [INFO] bbhunter: 📚 Loaded 3 training samples
+2026-03-18 10:28:30,347 [INFO] bbhunter: 📝 Feedback recorded: Test XSS Finding → TRUE POSITIVE
+2026-03-18 10:28:30,355 [INFO] bbhunter: 📚 Loaded 4 training samples
+2026-03-18 10:28:30,443 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 10:28:30,456 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:28:30,459 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:28:30,472 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 10:28:30,483 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:28:30,485 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:28:30,500 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:28:30,502 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:28:30,513 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,525 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,530 [INFO] bbhunter: ✅ Authorization confirmed for: example.com
+2026-03-18 10:28:30,540 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,542 [INFO] bbhunter: ✅ Authorization confirmed for: sub.example.com
+2026-03-18 10:28:30,551 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,559 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,571 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,579 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,588 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,599 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,611 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,617 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:28:30,619 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 10:28:30,621 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:28:30,634 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,638 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:28:30,640 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:28:30,651 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,663 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,675 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:28:30,679 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:28:30,681 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 10:28:30,682 [ERROR] bbhunter:   ❌ xss scanner error: boom
+2026-03-18 10:28:30,684 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:34:10,281 [INFO] bbhunter:   🌐 Subdomain enumeration: example.com
+2026-03-18 10:34:10,289 [INFO] bbhunter:   ✅ Found 3 subdomains for example.com
+2026-03-18 10:34:10,328 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 10:34:10,330 [INFO] bbhunter:   ✅ CT logs found 2 subdomains
+2026-03-18 10:34:10,339 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 10:34:10,340 [INFO] bbhunter:   ✅ CT logs found 1 subdomains
+2026-03-18 10:34:10,377 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 10:34:10,380 [INFO] bbhunter:   ✅ Wayback found 2 interesting URLs
+2026-03-18 10:34:10,390 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 10:34:10,392 [INFO] bbhunter:   ✅ Wayback found 0 interesting URLs
+2026-03-18 10:34:10,430 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 10:34:10,433 [INFO] bbhunter:   ✅ GitHub found 1 repositories
+2026-03-18 10:34:10,443 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 10:34:10,445 [WARNING] bbhunter: GitHub API rate limit reached
+2026-03-18 10:34:10,447 [INFO] bbhunter:   ✅ GitHub found 0 repositories
+2026-03-18 10:34:10,502 [INFO] bbhunter:   📋 DNS enumeration: example.com
+2026-03-18 10:34:10,508 [INFO] bbhunter:   ✅ DNS enumeration found 5 records
+2026-03-18 10:34:10,530 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 10:34:10,534 [INFO] bbhunter:   ✅ Cloud discovery found 0 assets
+2026-03-18 10:34:10,545 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 10:34:10,546 [INFO] bbhunter:   ✅ Cloud discovery found 1 assets
+2026-03-18 10:34:31,285 [INFO] bbhunter:   🌐 Subdomain enumeration: example.com
+2026-03-18 10:34:31,294 [INFO] bbhunter:   ✅ Found 3 subdomains for example.com
+2026-03-18 10:34:31,332 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 10:34:31,334 [INFO] bbhunter:   ✅ CT logs found 2 subdomains
+2026-03-18 10:34:31,343 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 10:34:31,345 [INFO] bbhunter:   ✅ CT logs found 1 subdomains
+2026-03-18 10:34:31,381 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 10:34:31,385 [INFO] bbhunter:   ✅ Wayback found 2 interesting URLs
+2026-03-18 10:34:31,396 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 10:34:31,397 [INFO] bbhunter:   ✅ Wayback found 0 interesting URLs
+2026-03-18 10:34:31,436 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 10:34:31,439 [INFO] bbhunter:   ✅ GitHub found 1 repositories
+2026-03-18 10:34:31,449 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 10:34:31,451 [WARNING] bbhunter: GitHub API rate limit reached
+2026-03-18 10:34:31,452 [INFO] bbhunter:   ✅ GitHub found 0 repositories
+2026-03-18 10:34:31,507 [INFO] bbhunter:   📋 DNS enumeration: example.com
+2026-03-18 10:34:31,514 [INFO] bbhunter:   ✅ DNS enumeration found 5 records
+2026-03-18 10:34:31,534 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 10:34:31,536 [INFO] bbhunter:   ✅ Cloud discovery found 0 assets
+2026-03-18 10:34:31,545 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 10:34:31,547 [INFO] bbhunter:   ✅ Cloud discovery found 1 assets
+2026-03-18 10:34:39,891 [INFO] bbhunter: 🧠 Analyzing 0 findings...
+2026-03-18 10:34:39,899 [INFO] bbhunter:   After FP reduction: 0 findings
+2026-03-18 10:34:39,901 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 10:34:39,912 [INFO] bbhunter: 🧠 Analyzing 2 findings...
+2026-03-18 10:34:39,914 [INFO] bbhunter:   After FP reduction: 2 findings
+2026-03-18 10:34:39,916 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 10:34:40,028 [INFO] bbhunter: 📚 Loaded 4 training samples
+2026-03-18 10:34:40,377 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,070 [INFO] bbhunter: 📚 Loaded 4 training samples
+2026-03-18 10:34:41,078 [INFO] bbhunter: 📚 Loaded 4 training samples
+2026-03-18 10:34:41,085 [INFO] bbhunter: 📚 Loaded 4 training samples
+2026-03-18 10:34:41,088 [INFO] bbhunter: 📝 Feedback recorded: Test XSS Finding → TRUE POSITIVE
+2026-03-18 10:34:41,096 [INFO] bbhunter: 📚 Loaded 5 training samples
+2026-03-18 10:34:41,230 [INFO] bbhunter:   🌐 Subdomain enumeration: example.com
+2026-03-18 10:34:41,232 [INFO] bbhunter:   ✅ Found 3 subdomains for example.com
+2026-03-18 10:34:41,267 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 10:34:41,269 [INFO] bbhunter:   ✅ CT logs found 2 subdomains
+2026-03-18 10:34:41,278 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 10:34:41,279 [INFO] bbhunter:   ✅ CT logs found 1 subdomains
+2026-03-18 10:34:41,314 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 10:34:41,317 [INFO] bbhunter:   ✅ Wayback found 2 interesting URLs
+2026-03-18 10:34:41,327 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 10:34:41,329 [INFO] bbhunter:   ✅ Wayback found 0 interesting URLs
+2026-03-18 10:34:41,367 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 10:34:41,369 [INFO] bbhunter:   ✅ GitHub found 1 repositories
+2026-03-18 10:34:41,380 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 10:34:41,381 [WARNING] bbhunter: GitHub API rate limit reached
+2026-03-18 10:34:41,383 [INFO] bbhunter:   ✅ GitHub found 0 repositories
+2026-03-18 10:34:41,436 [INFO] bbhunter:   📋 DNS enumeration: example.com
+2026-03-18 10:34:41,443 [INFO] bbhunter:   ✅ DNS enumeration found 5 records
+2026-03-18 10:34:41,463 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 10:34:41,465 [INFO] bbhunter:   ✅ Cloud discovery found 0 assets
+2026-03-18 10:34:41,473 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 10:34:41,475 [INFO] bbhunter:   ✅ Cloud discovery found 1 assets
+2026-03-18 10:34:41,557 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 10:34:41,570 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:34:41,576 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:34:41,590 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 10:34:41,600 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:34:41,603 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:34:41,618 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:34:41,620 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:34:41,631 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,640 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,647 [INFO] bbhunter: ✅ Authorization confirmed for: example.com
+2026-03-18 10:34:41,657 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,659 [INFO] bbhunter: ✅ Authorization confirmed for: sub.example.com
+2026-03-18 10:34:41,668 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,677 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,689 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,698 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,706 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,718 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,730 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,734 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:34:41,736 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 10:34:41,738 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:34:41,750 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,754 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:34:41,756 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:34:41,768 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,779 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,791 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:34:41,795 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:34:41,797 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 10:34:41,798 [ERROR] bbhunter:   ❌ xss scanner error: boom
+2026-03-18 10:34:41,800 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:35:02,041 [INFO] bbhunter: 🧠 Analyzing 0 findings...
+2026-03-18 10:35:02,048 [INFO] bbhunter:   After FP reduction: 0 findings
+2026-03-18 10:35:02,051 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 10:35:02,062 [INFO] bbhunter: 🧠 Analyzing 2 findings...
+2026-03-18 10:35:02,065 [INFO] bbhunter:   After FP reduction: 2 findings
+2026-03-18 10:35:02,067 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 10:35:02,190 [INFO] bbhunter: 📚 Loaded 5 training samples
+2026-03-18 10:35:02,566 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:03,256 [INFO] bbhunter: 📚 Loaded 5 training samples
+2026-03-18 10:35:03,263 [INFO] bbhunter: 📚 Loaded 5 training samples
+2026-03-18 10:35:03,271 [INFO] bbhunter: 📚 Loaded 5 training samples
+2026-03-18 10:35:03,275 [INFO] bbhunter: 📝 Feedback recorded: Test XSS Finding → TRUE POSITIVE
+2026-03-18 10:35:03,282 [INFO] bbhunter: 📚 Loaded 6 training samples
+2026-03-18 10:35:03,430 [INFO] bbhunter:   🌐 Subdomain enumeration: example.com
+2026-03-18 10:35:03,432 [INFO] bbhunter:   ✅ Found 3 subdomains for example.com
+2026-03-18 10:35:03,478 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 10:35:03,480 [INFO] bbhunter:   ✅ CT logs found 2 subdomains
+2026-03-18 10:35:03,489 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 10:35:03,491 [INFO] bbhunter:   ✅ CT logs found 1 subdomains
+2026-03-18 10:35:03,534 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 10:35:03,537 [INFO] bbhunter:   ✅ Wayback found 2 interesting URLs
+2026-03-18 10:35:03,548 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 10:35:03,550 [INFO] bbhunter:   ✅ Wayback found 0 interesting URLs
+2026-03-18 10:35:03,593 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 10:35:03,596 [INFO] bbhunter:   ✅ GitHub found 1 repositories
+2026-03-18 10:35:03,608 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 10:35:03,609 [WARNING] bbhunter: GitHub API rate limit reached
+2026-03-18 10:35:03,611 [INFO] bbhunter:   ✅ GitHub found 0 repositories
+2026-03-18 10:35:03,668 [INFO] bbhunter:   📋 DNS enumeration: example.com
+2026-03-18 10:35:03,675 [INFO] bbhunter:   ✅ DNS enumeration found 5 records
+2026-03-18 10:35:03,696 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 10:35:03,698 [INFO] bbhunter:   ✅ Cloud discovery found 0 assets
+2026-03-18 10:35:03,708 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 10:35:03,710 [INFO] bbhunter:   ✅ Cloud discovery found 1 assets
+2026-03-18 10:35:03,797 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 10:35:03,811 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:35:03,813 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:35:03,828 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 10:35:03,839 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:35:03,841 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:35:03,858 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 10:35:03,860 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 10:35:03,871 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:03,881 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:03,886 [INFO] bbhunter: ✅ Authorization confirmed for: example.com
+2026-03-18 10:35:03,896 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:03,898 [INFO] bbhunter: ✅ Authorization confirmed for: sub.example.com
+2026-03-18 10:35:03,908 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:03,917 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:03,929 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:03,938 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:03,947 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:03,960 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:03,973 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:03,978 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:35:03,980 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 10:35:03,982 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:35:03,995 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:03,999 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:35:04,001 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 10:35:04,014 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:04,026 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:04,039 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 10:35:04,044 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 10:35:04,045 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 10:35:04,047 [ERROR] bbhunter:   ❌ xss scanner error: boom
+2026-03-18 10:35:04,048 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 11:22:54,682 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:22:56,149 [WARNING] bbhunter: ⚠️  Dashboard secret_key is the default. Set 'dashboard.secret_key' in config.yaml or BBHUNTER_API_KEY env var. Auto-generated key for this session: ug-zlZr4hsRqHplGyUVKfHRLtsV_ijtSuNnihKNjHaM
+2026-03-18 11:23:03,699 [INFO] bbhunter: 🧠 Analyzing 0 findings...
+2026-03-18 11:23:03,706 [INFO] bbhunter:   After FP reduction: 0 findings
+2026-03-18 11:23:03,708 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 11:23:03,717 [INFO] bbhunter: 🧠 Analyzing 2 findings...
+2026-03-18 11:23:03,720 [INFO] bbhunter:   After FP reduction: 2 findings
+2026-03-18 11:23:03,722 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 11:23:03,849 [INFO] bbhunter: 📚 Loaded 6 training samples
+2026-03-18 11:23:04,160 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:04,831 [INFO] bbhunter: 📚 Loaded 6 training samples
+2026-03-18 11:23:04,840 [INFO] bbhunter: 📚 Loaded 6 training samples
+2026-03-18 11:23:04,849 [INFO] bbhunter: 📚 Loaded 6 training samples
+2026-03-18 11:23:04,856 [INFO] bbhunter: 📝 Feedback recorded: Test XSS Finding → TRUE POSITIVE
+2026-03-18 11:23:04,864 [INFO] bbhunter: 📚 Loaded 7 training samples
+2026-03-18 11:23:05,035 [INFO] bbhunter:   🌐 Subdomain enumeration: example.com
+2026-03-18 11:23:05,038 [INFO] bbhunter:   ✅ Found 3 subdomains for example.com
+2026-03-18 11:23:05,082 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 11:23:05,084 [INFO] bbhunter:   ✅ CT logs found 2 subdomains
+2026-03-18 11:23:05,096 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 11:23:05,098 [INFO] bbhunter:   ✅ CT logs found 1 subdomains
+2026-03-18 11:23:05,142 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 11:23:05,145 [INFO] bbhunter:   ✅ Wayback found 2 interesting URLs
+2026-03-18 11:23:05,157 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 11:23:05,159 [INFO] bbhunter:   ✅ Wayback found 0 interesting URLs
+2026-03-18 11:23:05,204 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 11:23:05,207 [INFO] bbhunter:   ✅ GitHub found 1 repositories
+2026-03-18 11:23:05,220 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 11:23:05,222 [WARNING] bbhunter: GitHub API rate limit reached
+2026-03-18 11:23:05,224 [INFO] bbhunter:   ✅ GitHub found 0 repositories
+2026-03-18 11:23:05,293 [INFO] bbhunter:   📋 DNS enumeration: example.com
+2026-03-18 11:23:05,298 [INFO] bbhunter:   ✅ DNS enumeration found 5 records
+2026-03-18 11:23:05,322 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 11:23:05,325 [INFO] bbhunter:   ✅ Cloud discovery found 0 assets
+2026-03-18 11:23:05,336 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 11:23:05,338 [INFO] bbhunter:   ✅ Cloud discovery found 1 assets
+2026-03-18 11:23:05,436 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 11:23:05,449 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 11:23:05,451 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 11:23:05,468 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 11:23:05,480 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 11:23:05,482 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 11:23:05,502 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 11:23:05,505 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 11:23:05,517 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:05,531 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:05,535 [INFO] bbhunter: ✅ Authorization confirmed for: example.com
+2026-03-18 11:23:05,546 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:05,548 [INFO] bbhunter: ✅ Authorization confirmed for: sub.example.com
+2026-03-18 11:23:05,561 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:05,571 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:05,585 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:05,595 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:05,606 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:05,620 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:05,634 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:05,640 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 11:23:05,642 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 11:23:05,644 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 11:23:05,659 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:05,664 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 11:23:05,666 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 11:23:05,680 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:05,696 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:05,711 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:05,715 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 11:23:05,717 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 11:23:05,720 [ERROR] bbhunter:   ❌ xss scanner error: boom
+2026-03-18 11:23:05,722 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 11:23:15,552 [INFO] bbhunter: 🧠 Analyzing 0 findings...
+2026-03-18 11:23:15,561 [INFO] bbhunter:   After FP reduction: 0 findings
+2026-03-18 11:23:15,563 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 11:23:15,575 [INFO] bbhunter: 🧠 Analyzing 2 findings...
+2026-03-18 11:23:15,577 [INFO] bbhunter:   After FP reduction: 2 findings
+2026-03-18 11:23:15,578 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 11:23:15,707 [INFO] bbhunter: 📚 Loaded 7 training samples
+2026-03-18 11:23:16,306 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,121 [INFO] bbhunter: 📚 Loaded 7 training samples
+2026-03-18 11:23:17,128 [INFO] bbhunter: 📚 Loaded 7 training samples
+2026-03-18 11:23:17,138 [INFO] bbhunter: 📚 Loaded 7 training samples
+2026-03-18 11:23:17,141 [INFO] bbhunter: 📝 Feedback recorded: Test XSS Finding → TRUE POSITIVE
+2026-03-18 11:23:17,149 [INFO] bbhunter: 📚 Loaded 8 training samples
+2026-03-18 11:23:17,326 [INFO] bbhunter:   🌐 Subdomain enumeration: example.com
+2026-03-18 11:23:17,329 [INFO] bbhunter:   ✅ Found 3 subdomains for example.com
+2026-03-18 11:23:17,373 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 11:23:17,374 [INFO] bbhunter:   ✅ CT logs found 2 subdomains
+2026-03-18 11:23:17,383 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 11:23:17,386 [INFO] bbhunter:   ✅ CT logs found 1 subdomains
+2026-03-18 11:23:17,426 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 11:23:17,428 [INFO] bbhunter:   ✅ Wayback found 2 interesting URLs
+2026-03-18 11:23:17,438 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 11:23:17,440 [INFO] bbhunter:   ✅ Wayback found 0 interesting URLs
+2026-03-18 11:23:17,482 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 11:23:17,485 [INFO] bbhunter:   ✅ GitHub found 1 repositories
+2026-03-18 11:23:17,499 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 11:23:17,501 [WARNING] bbhunter: GitHub API rate limit reached
+2026-03-18 11:23:17,502 [INFO] bbhunter:   ✅ GitHub found 0 repositories
+2026-03-18 11:23:17,569 [INFO] bbhunter:   📋 DNS enumeration: example.com
+2026-03-18 11:23:17,576 [INFO] bbhunter:   ✅ DNS enumeration found 5 records
+2026-03-18 11:23:17,600 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 11:23:17,602 [INFO] bbhunter:   ✅ Cloud discovery found 0 assets
+2026-03-18 11:23:17,613 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 11:23:17,615 [INFO] bbhunter:   ✅ Cloud discovery found 1 assets
+2026-03-18 11:23:17,705 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 11:23:17,717 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 11:23:17,720 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 11:23:17,735 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 11:23:17,748 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 11:23:17,751 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 11:23:17,768 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 11:23:17,772 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 11:23:17,783 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,794 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,798 [INFO] bbhunter: ✅ Authorization confirmed for: example.com
+2026-03-18 11:23:17,808 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,810 [INFO] bbhunter: ✅ Authorization confirmed for: sub.example.com
+2026-03-18 11:23:17,819 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,829 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,841 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,850 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,860 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,872 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,884 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,890 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 11:23:17,892 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 11:23:17,893 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 11:23:17,906 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,911 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 11:23:17,912 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 11:23:17,925 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,938 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,950 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:23:17,955 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 11:23:17,957 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 11:23:17,958 [ERROR] bbhunter:   ❌ xss scanner error: boom
+2026-03-18 11:23:17,960 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 11:24:59,208 [INFO] bbhunter: 🧠 Analyzing 0 findings...
+2026-03-18 11:24:59,222 [INFO] bbhunter:   After FP reduction: 0 findings
+2026-03-18 11:24:59,224 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 11:24:59,236 [INFO] bbhunter: 🧠 Analyzing 2 findings...
+2026-03-18 11:24:59,239 [INFO] bbhunter:   After FP reduction: 2 findings
+2026-03-18 11:24:59,241 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 11:24:59,365 [INFO] bbhunter: 📚 Loaded 8 training samples
+2026-03-18 11:24:59,743 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:00,550 [INFO] bbhunter: 📚 Loaded 8 training samples
+2026-03-18 11:25:00,559 [INFO] bbhunter: 📚 Loaded 8 training samples
+2026-03-18 11:25:00,566 [INFO] bbhunter: 📚 Loaded 8 training samples
+2026-03-18 11:25:00,571 [INFO] bbhunter: 📝 Feedback recorded: Test XSS Finding → TRUE POSITIVE
+2026-03-18 11:25:00,579 [INFO] bbhunter: 📚 Loaded 9 training samples
+2026-03-18 11:25:00,738 [INFO] bbhunter:   🌐 Subdomain enumeration: example.com
+2026-03-18 11:25:00,741 [INFO] bbhunter:   ✅ Found 3 subdomains for example.com
+2026-03-18 11:25:00,780 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 11:25:00,782 [INFO] bbhunter:   ✅ CT logs found 2 subdomains
+2026-03-18 11:25:00,791 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 11:25:00,793 [INFO] bbhunter:   ✅ CT logs found 1 subdomains
+2026-03-18 11:25:00,834 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 11:25:00,837 [INFO] bbhunter:   ✅ Wayback found 2 interesting URLs
+2026-03-18 11:25:00,847 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 11:25:00,849 [INFO] bbhunter:   ✅ Wayback found 0 interesting URLs
+2026-03-18 11:25:00,896 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 11:25:00,899 [INFO] bbhunter:   ✅ GitHub found 1 repositories
+2026-03-18 11:25:00,911 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 11:25:00,912 [WARNING] bbhunter: GitHub API rate limit reached
+2026-03-18 11:25:00,914 [INFO] bbhunter:   ✅ GitHub found 0 repositories
+2026-03-18 11:25:00,976 [INFO] bbhunter:   📋 DNS enumeration: example.com
+2026-03-18 11:25:00,981 [INFO] bbhunter:   ✅ DNS enumeration found 5 records
+2026-03-18 11:25:01,006 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 11:25:01,008 [INFO] bbhunter:   ✅ Cloud discovery found 0 assets
+2026-03-18 11:25:01,016 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 11:25:01,019 [INFO] bbhunter:   ✅ Cloud discovery found 1 assets
+2026-03-18 11:25:01,115 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 11:25:01,129 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 11:25:01,132 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 11:25:01,147 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 11:25:01,159 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 11:25:01,161 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 11:25:01,181 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 11:25:01,183 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 11:25:01,196 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:01,207 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:01,212 [INFO] bbhunter: ✅ Authorization confirmed for: example.com
+2026-03-18 11:25:01,222 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:01,224 [INFO] bbhunter: ✅ Authorization confirmed for: sub.example.com
+2026-03-18 11:25:01,233 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:01,243 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:01,257 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:01,266 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:01,278 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:01,291 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:01,303 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:01,308 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 11:25:01,310 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 11:25:01,312 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 11:25:01,325 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:01,330 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 11:25:01,331 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 11:25:01,345 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:01,358 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:01,372 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 11:25:01,376 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 11:25:01,378 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 11:25:01,379 [ERROR] bbhunter:   ❌ xss scanner error: boom
+2026-03-18 11:25:01,380 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 12:09:03,138 [INFO] bbhunter: 🧠 Analyzing 0 findings...
+2026-03-18 12:09:03,144 [INFO] bbhunter:   After FP reduction: 0 findings
+2026-03-18 12:09:03,146 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 12:09:03,156 [INFO] bbhunter: 🧠 Analyzing 2 findings...
+2026-03-18 12:09:03,158 [INFO] bbhunter:   After FP reduction: 2 findings
+2026-03-18 12:09:03,159 [INFO] bbhunter:   Exploit chains found: 0
+2026-03-18 12:09:03,284 [INFO] bbhunter: 📚 Loaded 9 training samples
+2026-03-18 12:09:03,628 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:04,402 [INFO] bbhunter: 📚 Loaded 9 training samples
+2026-03-18 12:09:04,412 [INFO] bbhunter: 📚 Loaded 9 training samples
+2026-03-18 12:09:04,420 [INFO] bbhunter: 📚 Loaded 9 training samples
+2026-03-18 12:09:04,424 [INFO] bbhunter: 📝 Feedback recorded: Test XSS Finding → TRUE POSITIVE
+2026-03-18 12:09:04,434 [INFO] bbhunter: 📚 Loaded 10 training samples
+2026-03-18 12:09:04,586 [INFO] bbhunter:   🌐 Subdomain enumeration: example.com
+2026-03-18 12:09:04,589 [INFO] bbhunter:   ✅ Found 3 subdomains for example.com
+2026-03-18 12:09:04,636 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 12:09:04,638 [INFO] bbhunter:   ✅ CT logs found 2 subdomains
+2026-03-18 12:09:04,652 [INFO] bbhunter:   🔐 CT Log enumeration: example.com
+2026-03-18 12:09:04,655 [INFO] bbhunter:   ✅ CT logs found 1 subdomains
+2026-03-18 12:09:04,694 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 12:09:04,697 [INFO] bbhunter:   ✅ Wayback found 2 interesting URLs
+2026-03-18 12:09:04,708 [INFO] bbhunter:   📜 Wayback Machine scraping: example.com
+2026-03-18 12:09:04,710 [INFO] bbhunter:   ✅ Wayback found 0 interesting URLs
+2026-03-18 12:09:04,753 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 12:09:04,756 [INFO] bbhunter:   ✅ GitHub found 1 repositories
+2026-03-18 12:09:04,769 [INFO] bbhunter:   🐙 GitHub reconnaissance: example.com
+2026-03-18 12:09:04,772 [WARNING] bbhunter: GitHub API rate limit reached
+2026-03-18 12:09:04,775 [INFO] bbhunter:   ✅ GitHub found 0 repositories
+2026-03-18 12:09:04,879 [INFO] bbhunter:   📋 DNS enumeration: example.com
+2026-03-18 12:09:04,905 [INFO] bbhunter:   ✅ DNS enumeration found 5 records
+2026-03-18 12:09:04,970 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 12:09:04,973 [INFO] bbhunter:   ✅ Cloud discovery found 0 assets
+2026-03-18 12:09:04,987 [INFO] bbhunter:   ☁️  Cloud asset discovery: example.com
+2026-03-18 12:09:04,990 [INFO] bbhunter:   ✅ Cloud discovery found 1 assets
+2026-03-18 12:09:05,111 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 12:09:05,124 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 12:09:05,127 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 12:09:05,141 [INFO] bbhunter: 📄 Report saved: reports/Test_XSS_Finding.md
+2026-03-18 12:09:05,152 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 12:09:05,154 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 12:09:05,170 [INFO] bbhunter: 📊 Executive summary saved: reports/executive_summary_example.com.md
+2026-03-18 12:09:05,172 [INFO] bbhunter: 📋 JSON report saved: reports/report_example.com.json
+2026-03-18 12:09:05,184 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:05,194 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:05,199 [INFO] bbhunter: ✅ Authorization confirmed for: example.com
+2026-03-18 12:09:05,208 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:05,211 [INFO] bbhunter: ✅ Authorization confirmed for: sub.example.com
+2026-03-18 12:09:05,220 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:05,229 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:05,240 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:05,251 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:05,260 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:05,272 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:05,284 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:05,289 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 12:09:05,291 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 12:09:05,292 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 12:09:05,305 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:05,309 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 12:09:05,311 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings
+2026-03-18 12:09:05,323 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:05,335 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:05,347 [INFO] bbhunter: Loaded 1 authorized target(s)
+2026-03-18 12:09:05,352 [INFO] bbhunter: 🔫 Starting vulnerability scan: example.com (0 endpoints)
+2026-03-18 12:09:05,353 [INFO] bbhunter:   🔍 Testing: XSS
+2026-03-18 12:09:05,355 [ERROR] bbhunter:   ❌ xss scanner error: boom
+2026-03-18 12:09:05,356 [INFO] bbhunter: ✅ Vulnerability scan complete: 0 findings

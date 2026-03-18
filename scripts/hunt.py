@@ -42,7 +42,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from config import (
     TARGET_DOMAIN, TARGET_DIR, TOOLS, DOORDASH_RULES,
     LOGS_DIR, ensure_dirs, GO_BIN, TARGET_LLM_DIR,
-    LLM_MODEL,
+    LLM_MODEL, STEP_TIMEOUT, MAX_CONSECUTIVE_FAILURES,
+    PROGRAM_NAME,
 )
 from db_manager import (
     get_db, DBManager, SafetyChecker, parse_llm_findings,
@@ -51,32 +52,84 @@ from db_manager import (
 # LLM integration flag (set False with --no-llm)
 LLM_ENABLED = True
 
+# Step timeout (seconds) — 0 means no limit
+_step_timeout: int = STEP_TIMEOUT
+
+
+class StepTimeoutError(Exception):
+    """Raised when a recon step exceeds its allowed timeout."""
+    pass
+
+
+def _timeout_handler(signum, frame):
+    raise StepTimeoutError("Step exceeded timeout limit")
+
+
+def run_step_with_timeout(name: str, func, timeout: int = 0) -> str:
+    """
+    Run a recon step function with an optional timeout.
+    Returns '✓' on success, '⏭' on timeout/skip, '✗' on error.
+    """
+    import signal
+    effective_timeout = timeout or _step_timeout
+    old_handler = None
+
+    try:
+        if effective_timeout > 0:
+            old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+            signal.alarm(effective_timeout)
+
+        func()
+
+        if effective_timeout > 0:
+            signal.alarm(0)  # cancel alarm
+        return "✓"
+
+    except StepTimeoutError:
+        log(f"⏭ Step '{name}' skipped: exceeded {effective_timeout}s timeout", "WARN")
+        db_log("step_timeout", name,
+               details={"timeout_s": effective_timeout}, level="WARN")
+        return "⏭"
+
+    except Exception as e:
+        if effective_timeout > 0:
+            signal.alarm(0)
+        log(f"Step {name} failed: {e}", "ERROR")
+        db_log("step_error", name, details={"error": str(e)}, level="ERROR")
+        return "✗"
+
+    finally:
+        if effective_timeout > 0:
+            signal.alarm(0)
+            if old_handler is not None:
+                signal.signal(signal.SIGALRM, old_handler)
+
 # ── Database + Safety (initialized in main) ──────────────────
 _db: DBManager = None
 _target_id: str = ""
-_scan_run_id: str = ""
+_scan_id: str = ""
 _safety: SafetyChecker = None
 
 
 def init_db_and_safety():
     """Initialize DB, register target, start scan run, init safety gate."""
-    global _db, _target_id, _scan_run_id, _safety
+    global _db, _target_id, _scan_id, _safety
     _db = get_db()
     _target_id = _db.upsert_target(
         domain=TARGET_DOMAIN,
-        program="HackerOne - DoorDash",
+        program=PROGRAM_NAME,
         platform="hackerone",
         scope={"in_scope": DOORDASH_RULES.get("in_scope", [])},
         rules=DOORDASH_RULES,
     )
-    _scan_run_id = _db.start_scan_run(_target_id, "passive_recon")
+    _scan_id = _db.start_scan(_target_id, "passive_recon")
     _safety = SafetyChecker(DOORDASH_RULES)
     _db.log_action("pipeline_start", TARGET_DOMAIN,
-                   details={"scan_run_id": _scan_run_id},
-                   scan_run_id=_scan_run_id)
+                   details={"scan_id": _scan_id},
+                   scan_id=_scan_id)
     log(f"🗄️  DB initialized: {_db.db_path}")
     log(f"🔒 Safety gate active (scope enforcement)")
-    log(f"📋 Scan run: {_scan_run_id[:8]}...")
+    log(f"📋 Scan run: {_scan_id[:8]}...")
 
 
 # ─────────────────────────────────────────────────────────────
@@ -98,9 +151,9 @@ def db_log(action: str, step_name: str = "", tool_name: str = "",
     if _db:
         try:
             _db.log_action(action, TARGET_DOMAIN, step_name, tool_name,
-                           details or {}, level, _scan_run_id)
-        except Exception:
-            pass
+                           details or {}, level, _scan_id)
+        except Exception as exc:
+            log(f"db_log failed: {exc}", "DEBUG")
 
 
 def run_tool(cmd: list[str], outfile: Path, timeout: int = 600) -> bool:
@@ -280,11 +333,20 @@ def analyze_step_output(step_name: str, output_files: list[Path]):
 
         total_tokens = 0
         total_duration = 0.0
+        consecutive_llm_failures = 0
 
         for chunk in chunks:
             chunk_file = file_output_dir / f"chunk_{chunk['index']:03d}.json"
             if chunk_file.exists():
+                consecutive_llm_failures = 0
                 continue  # Skip already processed
+
+            # Skip remaining chunks after too many consecutive failures
+            if MAX_CONSECUTIVE_FAILURES > 0 and consecutive_llm_failures >= MAX_CONSECUTIVE_FAILURES:
+                remaining = len(chunks) - chunk["index"]
+                log(f"   ⚠️  {consecutive_llm_failures} consecutive LLM failures — "
+                    f"skipping remaining {remaining} chunks", "WARN")
+                break
 
             log(f"   Chunk {chunk['index']+1}/{len(chunks)} "
                 f"({chunk['char_count']} chars)...")
@@ -307,7 +369,7 @@ def analyze_step_output(step_name: str, output_files: list[Path]):
 
             # ── Store LLM chunk in DB ──
             if _db:
-                _db.store_llm_chunk(_target_id, _scan_run_id, {
+                _db.store_llm_chunk(_target_id, _scan_id, {
                     "source_file": filename,
                     "chunk_index": chunk["index"],
                     "total_chunks": len(chunks),
@@ -327,6 +389,7 @@ def analyze_step_output(step_name: str, output_files: list[Path]):
             if result["success"]:
                 total_tokens += result.get("tokens_eval", 0)
                 total_duration += result.get("duration_s", 0)
+                consecutive_llm_failures = 0
                 log(f" ✓ ({result['duration_s']}s)")
 
                 # ── Parse & store findings from this chunk ──
@@ -335,10 +398,12 @@ def analyze_step_output(step_name: str, output_files: list[Path]):
                     if findings:
                         for f in findings:
                             f["source"] = f"llm_{step_name}"
-                        _db.store_vulnerabilities(_target_id, _scan_run_id, findings)
+                        _db.store_vulnerabilities(_target_id, _scan_id, findings)
                         log(f"   💾 {len(findings)} finding(s) → DB")
             else:
-                log(f" ✗ {result.get('error', 'no response')}")
+                consecutive_llm_failures += 1
+                log(f" ✗ {result.get('error', 'no response')}"
+                    f" (failures: {consecutive_llm_failures}/{MAX_CONSECUTIVE_FAILURES})")
 
             time.sleep(1)  # Brief pause between chunks
 
@@ -352,14 +417,14 @@ def analyze_step_output(step_name: str, output_files: list[Path]):
                 if d.get("success") and d.get("llm_response"):
                     merged.append(f"\n--- Chunk {d['chunk_index']+1} ---")
                     merged.append(d["llm_response"])
-            except Exception:
-                pass
+            except Exception as exc:
+                log(f"Failed to parse chunk data for merging: {exc}", "DEBUG")
         merged_text = "\n".join(merged) + "\n"
         merge_file.write_text(merged_text)
 
         # ── Store merged analysis in DB ──
         if _db:
-            _db.store_llm_analysis(_target_id, _scan_run_id, {
+            _db.store_llm_analysis(_target_id, _scan_id, {
                 "source_file": filename,
                 "merged_text": merged_text,
                 "chunks_total": len(chunks),
@@ -418,7 +483,7 @@ def step_subdomain_enum():
             for sub in sorted(oos):
                 assets.append({"type": "subdomain", "value": sub.strip(),
                                "source": "subfinder", "in_scope": 0})
-            inserted = _db.store_assets(_target_id, _scan_run_id, assets)
+            inserted = _db.store_assets(_target_id, _scan_id, assets)
             log(f"💾 {inserted} subdomains → DB")
 
     db_log("step_complete", "subdomain_enum", details={"total": len(lines) if outfile.exists() else 0})
@@ -463,7 +528,7 @@ def step_amass_enum():
         if _db and new_subs:
             assets = [{"type": "subdomain", "value": s.strip(),
                        "source": "amass", "in_scope": 1} for s in sorted(new_subs)]
-            inserted = _db.store_assets(_target_id, _scan_run_id, assets)
+            inserted = _db.store_assets(_target_id, _scan_id, assets)
             log(f"💾 {inserted} new amass subdomains → DB")
 
     db_log("step_complete", "amass_enum")
@@ -503,8 +568,8 @@ def step_dns_resolution():
                 )
                 if res.stdout.strip():
                     results.append(f"{sub.strip()} [{res.stdout.strip().replace(chr(10), ', ')}]")
-            except Exception:
-                pass
+            except Exception as exc:
+                log(f"DNS resolution failed for {sub.strip()}: {exc}", "DEBUG")
         outfile.write_text("\n".join(results) + "\n")
         log(f"Resolved {len(results)} subdomains via dig")
 
@@ -519,7 +584,7 @@ def step_dns_resolution():
             parts = line.split()
             subdomain = parts[0] if parts else line
             records.append({"subdomain": subdomain, "raw_line": line})
-        inserted = _db.store_dns_records(_target_id, _scan_run_id, records)
+        inserted = _db.store_dns_records(_target_id, _scan_id, records)
         log(f"💾 {inserted} DNS records → DB")
 
     db_log("step_complete", "dns_resolution")
@@ -575,8 +640,8 @@ def step_httpx_probe():
                         "tech_name": "httpx_fingerprint",
                         "header_value": " ".join(parts[1:])[:300],
                     })
-            inserted_a = _db.store_assets(_target_id, _scan_run_id, assets)
-            inserted_t = _db.store_technologies(_target_id, _scan_run_id, techs)
+            inserted_a = _db.store_assets(_target_id, _scan_id, assets)
+            inserted_t = _db.store_technologies(_target_id, _scan_id, techs)
             log(f"💾 {inserted_a} live hosts + {inserted_t} tech entries → DB")
 
     db_log("step_complete", "httpx_probe")
@@ -647,7 +712,7 @@ def step_url_discovery():
                     "is_interesting": 1 if url in interesting_set else 0,
                     "category": "url_discovery",
                 })
-            inserted = _db.store_endpoints(_target_id, _scan_run_id, eps)
+            inserted = _db.store_endpoints(_target_id, _scan_id, eps)
             log(f"💾 {inserted} endpoints → DB")
 
     db_log("step_complete", "url_discovery")
@@ -698,7 +763,7 @@ def step_wayback_urls():
         if _db:
             eps = [{"url": u, "source": "waybackurls", "category": "wayback"}
                    for u in unique]
-            inserted = _db.store_endpoints(_target_id, _scan_run_id, eps)
+            inserted = _db.store_endpoints(_target_id, _scan_id, eps)
             log(f"💾 {inserted} wayback endpoints → DB")
 
     db_log("step_complete", "wayback_urls")
@@ -762,7 +827,7 @@ def step_katana_crawl():
             eps = [{"url": u, "source": "katana",
                     "is_interesting": 1 if u in set(interesting) else 0,
                     "category": "katana_crawl"} for u in unique]
-            inserted = _db.store_endpoints(_target_id, _scan_run_id, eps)
+            inserted = _db.store_endpoints(_target_id, _scan_id, eps)
             log(f"💾 {inserted} katana endpoints → DB")
 
     db_log("step_complete", "katana_crawl")
@@ -825,7 +890,7 @@ def step_hakrawler():
             eps = [{"url": u, "source": "hakrawler",
                     "is_interesting": 1 if u in set(forms + js_refs + api_refs) else 0,
                     "category": "hakrawler"} for u in unique]
-            inserted = _db.store_endpoints(_target_id, _scan_run_id, eps)
+            inserted = _db.store_endpoints(_target_id, _scan_id, eps)
             log(f"💾 {inserted} hakrawler endpoints → DB")
 
     db_log("step_complete", "hakrawler")
@@ -895,7 +960,7 @@ def step_tech_detection():
                         })
         if current_url and current_headers:
             techs.append({"url": current_url, "raw_headers": current_headers})
-        inserted = _db.store_technologies(_target_id, _scan_run_id, techs)
+        inserted = _db.store_technologies(_target_id, _scan_id, techs)
         log(f"💾 {inserted} tech entries → DB")
 
     db_log("step_complete", "tech_detection")
@@ -935,7 +1000,8 @@ def step_port_scan_passive():
                 for line in res.stdout.splitlines():
                     if line.lower().startswith(("server:", "x-powered-by:", "x-frame-options:")):
                         results.append(f"  → {line.strip()}")
-        except Exception:
+        except Exception as exc:
+            log(f"Port check failed for {port}/{proto}: {exc}", "DEBUG")
             results.append(f"Port {port} ({proto}): TIMEOUT")
 
         time.sleep(0.5)
@@ -1029,8 +1095,8 @@ def step_js_analysis():
                         endpoints_found.add(m.group(1) if m.lastindex else m.group(0))
 
             time.sleep(0.5)  # Rate limit
-        except Exception:
-            pass
+        except Exception as exc:
+            log(f"JS file processing failed: {exc}", "DEBUG")
 
     # Save extracted endpoints
     ep_file = TARGET_DIR / "07_js_endpoints.txt"
@@ -1041,7 +1107,7 @@ def step_js_analysis():
     if _db:
         eps = [{"url": ep, "source": "js_analysis", "is_interesting": 1,
                 "category": "js_endpoint"} for ep in endpoints_found]
-        inserted = _db.store_endpoints(_target_id, _scan_run_id, eps)
+        inserted = _db.store_endpoints(_target_id, _scan_id, eps)
         log(f"💾 {inserted} JS endpoints → DB")
 
     db_log("step_complete", "js_analysis",
@@ -1125,7 +1191,7 @@ def step_param_discovery():
                 "name": pname, "sample_urls": urls[:5],
                 "is_interesting": 1 if is_int else 0,
             })
-        inserted = _db.store_parameters(_target_id, _scan_run_id, params)
+        inserted = _db.store_parameters(_target_id, _scan_id, params)
         log(f"💾 {inserted} parameters → DB")
 
     db_log("step_complete", "param_discovery",
@@ -1224,7 +1290,7 @@ def step_header_analysis():
                     "source": "header_analysis",
                     "evidence": line.strip(),
                 }
-                _db.store_vulnerability(_target_id, _scan_run_id, vuln)
+                _db.store_vulnerability(_target_id, _scan_id, vuln)
 
     db_log("step_complete", "header_analysis")
 
@@ -1242,7 +1308,7 @@ def step_scope_filter():
         "target": TARGET_DOMAIN,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "recon_type": "PASSIVE ONLY",
-        "program": "HackerOne - DoorDash",
+        "program": PROGRAM_NAME,
         "data_files": {},
         "stats": {},
     }
@@ -1307,7 +1373,7 @@ def step_scope_filter():
     # ── Store final stats in DB ──
     if _db:
         db_stats = _db.get_stats(_target_id)
-        _db.update_scan_run(_scan_run_id, "completed",
+        _db.update_scan(_scan_id, "completed",
                             steps=list(STEPS.keys()),
                             stats=db_stats)
         log(f"💾 DB Stats: {db_stats.get('assets',0)} assets, "
@@ -1350,7 +1416,7 @@ STEPS = {
 # ─────────────────────────────────────────────────────────────
 
 def main():
-    global LLM_ENABLED
+    global LLM_ENABLED, _step_timeout
     import argparse
     parser = argparse.ArgumentParser(description="BBHunter Passive Recon Pipeline")
     parser.add_argument("--step", type=str, help="Run a single step")
@@ -1361,10 +1427,15 @@ def main():
                         help="Run bbhunter engines after recon (surface, scanner, analysis, etc.)")
     parser.add_argument("--no-engines", action="store_true",
                         help="Skip bbhunter engine phase even if --engines was default")
+    parser.add_argument("--step-timeout", type=int, default=None,
+                        help=f"Max seconds per step (0=no limit, default={STEP_TIMEOUT})")
     args = parser.parse_args()
 
     if args.no_llm:
         LLM_ENABLED = False
+
+    if args.step_timeout is not None:
+        _step_timeout = args.step_timeout
 
     if args.list:
         table = Table(title="Available Recon Steps", box=box.ROUNDED)
@@ -1429,16 +1500,13 @@ def main():
         for name, func in steps_to_run:
             progress.update(task, description=f"[cyan]{name}[/cyan]")
             step_start = time.time()
-            status = "✓"
-            try:
-                func()
-            except Exception as e:
-                log(f"Step {name} failed: {e}", "ERROR")
-                db_log("step_error", name, details={"error": str(e)}, level="ERROR")
-                status = "✗"
+            status = run_step_with_timeout(name, func, _step_timeout)
             elapsed = time.time() - step_start
             step_results.append({"name": name, "elapsed": elapsed, "status": status})
-            log(f"Step {name} completed in {elapsed:.1f}s")
+            if status == "⏭":
+                log(f"Step {name} timed out after {elapsed:.1f}s — skipping to next")
+            else:
+                log(f"Step {name} completed in {elapsed:.1f}s")
             progress.advance(task)
             time.sleep(1)  # Brief pause between steps
 
@@ -1447,7 +1515,7 @@ def main():
     # ── Final DB stats ──
     if _db:
         stats = _db.get_stats(_target_id)
-        _db.update_scan_run(_scan_run_id, "completed", stats=stats)
+        _db.update_scan(_scan_id, "completed", stats=stats)
         db_log("pipeline_complete", details={
             "duration_s": round(total_elapsed, 1), "stats": stats})
 
@@ -1458,7 +1526,8 @@ def main():
     summary.add_column("Status", justify="center")
     summary.add_column("Duration", justify="right", style="yellow")
     for i, r in enumerate(step_results, 1):
-        st = "[green]✓[/green]" if r["status"] == "✓" else "[red]✗[/red]"
+        st = "[green]✓[/green]" if r["status"] == "✓" else \
+             "[yellow]⏭[/yellow]" if r["status"] == "⏭" else "[red]✗[/red]"
         summary.add_row(str(i), r["name"], st, f"{r['elapsed']:.1f}s")
     summary.add_section()
     summary.add_row("", "[bold]TOTAL[/bold]", "", f"[bold]{total_elapsed:.1f}s[/bold]")

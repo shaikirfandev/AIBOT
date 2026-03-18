@@ -85,3 +85,32 @@ target-version = "py310"
 python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: integration tests (require external services)",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["bbhunter"]
+omit = [
+    "tests/*",
+    "*/migrations/*",
+    "scripts/*",               # standalone pipeline scripts, tested via integration
+    "bbhunter/tools.py",       # external-tool wrappers, need live binaries
+]
+
+[tool.coverage.report]
+fail_under = 50
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.",
+    "if TYPE_CHECKING:",
+]

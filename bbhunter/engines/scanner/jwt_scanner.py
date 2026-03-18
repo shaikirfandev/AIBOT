@@ -159,7 +159,8 @@ class JWTScanner(BaseScanner):
                 part += "=" * padding
             decoded = base64.urlsafe_b64decode(part)
             return json.loads(decoded)
-        except Exception:
+        except Exception as exc:
+            logger.debug(f"JWT part decode failed: {exc}")
             return None
 
     def _test_weak_secrets(self, token: str, alg: str) -> str | None:
@@ -189,6 +190,6 @@ class JWTScanner(BaseScanner):
                 if sig == original_sig:
                     return secret
 
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug(f"JWT weak secret test failed: {exc}")
         return None

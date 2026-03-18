@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import asyncio
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from urllib.parse import urljoin, urlparse
 
@@ -99,7 +99,7 @@ class SurfaceMappingEngine:
             target_id=target.id,
             scan_type="surface_map",
             status=ScanStatus.RUNNING,
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
         )
         action_logger.log_scan_start("surface_map", domain)
         logger.info(f"🗺️  Starting surface mapping: {domain}")
@@ -136,7 +136,7 @@ class SurfaceMappingEngine:
                 await self._detect_waf(domain)
 
             scan.status = ScanStatus.COMPLETED
-            scan.completed_at = datetime.utcnow()
+            scan.completed_at = datetime.now(timezone.utc)
             scan.endpoints_found = len(self.discovered_endpoints)
 
         except Exception as e:
@@ -144,7 +144,7 @@ class SurfaceMappingEngine:
             scan.errors.append(str(e))
             logger.error(f"❌ Surface mapping failed: {e}")
 
-        scan.metadata["endpoints"] = [e.model_dump() for e in self.discovered_endpoints]
+        scan.metadata["endpoints"] = list(self.discovered_endpoints)
         scan.metadata["technologies"] = list(self.technologies)
         scan.metadata["waf"] = self.waf_detected
 
@@ -252,8 +252,8 @@ class SurfaceMappingEngine:
             for tag in soup.find_all("iframe", src=True):
                 urls.add(urljoin(base_url, tag["src"]))
 
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug(f"HTML link extraction failed: {exc}")
 
         # Also extract from inline JS
         js_urls = re.findall(r'''['"](https?://[^'"]+)['"]''', html)
@@ -303,8 +303,8 @@ class SurfaceMappingEngine:
                                     js_endpoints.add(full_url)
                                 elif match.startswith("http"):
                                     js_endpoints.add(match)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug(f"JS analysis failed for {js_url}: {exc}")
 
         # Add discovered JS endpoints
         for url in js_endpoints:
@@ -356,8 +356,8 @@ class SurfaceMappingEngine:
                                 metadata={"source": "api_discovery"},
                             ))
                             self.visited_urls.add(url)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.debug(f"API discovery failed for {url}: {exc}")
 
     async def _fingerprint_technology(self, domain: str):
         """Identify technologies used by the target."""

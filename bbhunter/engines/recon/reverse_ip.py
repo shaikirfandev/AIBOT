@@ -35,7 +35,7 @@ class ReverseIPLookup:
         try:
             # Resolve domain to IP
             import dns.resolver
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
             resolver = dns.resolver.Resolver()
             answers = await loop.run_in_executor(None, resolver.resolve, domain, "A")
 
@@ -73,7 +73,7 @@ class ReverseIPLookup:
                         d = line.strip().lower()
                         if d and "." in d:
                             domains.add(d)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug(f"Reverse IP lookup failed: {exc}")
 
         return list(domains)[:100]  # Limit results

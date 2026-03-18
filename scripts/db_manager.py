@@ -11,7 +11,7 @@ Maps to bbhunter.models Pydantic types where possible.
 
 Tables:
   targets        – authorized target domains + scope config
-  scan_runs      – each pipeline execution (start, end, status)
+  scans      – each pipeline execution (start, end, status)
   assets         – subdomains, IPs discovered
   endpoints      – URLs, API routes
   parameters     – discovered parameters per endpoint
@@ -24,6 +24,7 @@ Tables:
 """
 
 import json
+import logging
 import sqlite3
 import uuid
 import os
@@ -59,20 +60,24 @@ CREATE TABLE IF NOT EXISTS targets (
     program       TEXT DEFAULT '',
     platform      TEXT DEFAULT '',
     scope_json    TEXT DEFAULT '{}',
+    authorization_json TEXT DEFAULT '{}',
     rules_json    TEXT DEFAULT '{}',
     created_at    TEXT NOT NULL
 );
 
--- Scan runs (each pipeline execution)
-CREATE TABLE IF NOT EXISTS scan_runs (
+-- Scans (each pipeline execution)
+CREATE TABLE IF NOT EXISTS scans (
     id            TEXT PRIMARY KEY,
     target_id     TEXT NOT NULL,
-    run_type      TEXT DEFAULT 'passive_recon',
+    scan_type     TEXT DEFAULT 'passive_recon',
     status        TEXT DEFAULT 'running',
-    steps_json    TEXT DEFAULT '[]',
-    started_at    TEXT NOT NULL,
+    started_at    TEXT,
     completed_at  TEXT,
-    stats_json    TEXT DEFAULT '{}',
+    assets_found  INTEGER DEFAULT 0,
+    endpoints_found INTEGER DEFAULT 0,
+    vulnerabilities_found INTEGER DEFAULT 0,
+    errors_json   TEXT DEFAULT '[]',
+    metadata_json TEXT DEFAULT '{}',
     FOREIGN KEY (target_id) REFERENCES targets(id)
 );
 
@@ -80,7 +85,7 @@ CREATE TABLE IF NOT EXISTS scan_runs (
 CREATE TABLE IF NOT EXISTS assets (
     id            TEXT PRIMARY KEY,
     target_id     TEXT NOT NULL,
-    scan_run_id   TEXT,
+    scan_id       TEXT DEFAULT '',
     asset_type    TEXT NOT NULL,
     value         TEXT NOT NULL,
     source        TEXT DEFAULT '',
@@ -88,7 +93,7 @@ CREATE TABLE IF NOT EXISTS assets (
     metadata_json TEXT DEFAULT '{}',
     discovered_at TEXT NOT NULL,
     FOREIGN KEY (target_id) REFERENCES targets(id),
-    FOREIGN KEY (scan_run_id) REFERENCES scan_runs(id)
+    FOREIGN KEY (scan_id)   REFERENCES scans(id)
 );
 CREATE INDEX IF NOT EXISTS idx_assets_type ON assets(asset_type);
 CREATE INDEX IF NOT EXISTS idx_assets_value ON assets(value);
@@ -97,7 +102,7 @@ CREATE INDEX IF NOT EXISTS idx_assets_value ON assets(value);
 CREATE TABLE IF NOT EXISTS endpoints (
     id            TEXT PRIMARY KEY,
     target_id     TEXT NOT NULL,
-    scan_run_id   TEXT,
+    scan_id       TEXT DEFAULT '',
     url           TEXT NOT NULL,
     method        TEXT DEFAULT 'GET',
     status_code   INTEGER DEFAULT 0,
@@ -105,8 +110,11 @@ CREATE TABLE IF NOT EXISTS endpoints (
     source        TEXT DEFAULT '',
     is_interesting INTEGER DEFAULT 0,
     category      TEXT DEFAULT '',
+    parameters_json TEXT DEFAULT '[]',
+    headers_json  TEXT DEFAULT '{}',
+    auth_required INTEGER DEFAULT 0,
+    technology_json TEXT DEFAULT '[]',
     metadata_json TEXT DEFAULT '{}',
-    discovered_at TEXT NOT NULL,
     FOREIGN KEY (target_id) REFERENCES targets(id)
 );
 CREATE INDEX IF NOT EXISTS idx_endpoints_url ON endpoints(url);
@@ -115,7 +123,7 @@ CREATE INDEX IF NOT EXISTS idx_endpoints_url ON endpoints(url);
 CREATE TABLE IF NOT EXISTS parameters (
     id            TEXT PRIMARY KEY,
     target_id     TEXT NOT NULL,
-    endpoint_id   TEXT,
+    endpoint_id   TEXT DEFAULT '',
     name          TEXT NOT NULL,
     location      TEXT DEFAULT 'query',
     sample_urls   TEXT DEFAULT '[]',
@@ -130,7 +138,7 @@ CREATE INDEX IF NOT EXISTS idx_params_name ON parameters(name);
 CREATE TABLE IF NOT EXISTS dns_records (
     id            TEXT PRIMARY KEY,
     target_id     TEXT NOT NULL,
-    scan_run_id   TEXT,
+    scan_id       TEXT DEFAULT '',
     subdomain     TEXT NOT NULL,
     record_type   TEXT DEFAULT '',
     value         TEXT DEFAULT '',
@@ -143,7 +151,7 @@ CREATE TABLE IF NOT EXISTS dns_records (
 CREATE TABLE IF NOT EXISTS technologies (
     id            TEXT PRIMARY KEY,
     target_id     TEXT NOT NULL,
-    scan_run_id   TEXT,
+    scan_id       TEXT DEFAULT '',
     url           TEXT NOT NULL,
     header_name   TEXT DEFAULT '',
     header_value  TEXT DEFAULT '',
@@ -157,22 +165,27 @@ CREATE TABLE IF NOT EXISTS technologies (
 CREATE TABLE IF NOT EXISTS vulnerabilities (
     id            TEXT PRIMARY KEY,
     target_id     TEXT NOT NULL,
-    scan_run_id   TEXT,
+    scan_id       TEXT DEFAULT '',
     title         TEXT NOT NULL,
     category      TEXT DEFAULT 'other',
     severity      TEXT DEFAULT 'info',
     description   TEXT DEFAULT '',
     url           TEXT DEFAULT '',
     parameter     TEXT DEFAULT '',
+    payload       TEXT DEFAULT '',
     evidence      TEXT DEFAULT '',
+    request       TEXT DEFAULT '',
+    response      TEXT DEFAULT '',
+    errors_json    TEXT DEFAULT '[]',
     impact        TEXT DEFAULT '',
     remediation   TEXT DEFAULT '',
     next_steps    TEXT DEFAULT '',
     confidence    REAL DEFAULT 0.0,
     source        TEXT DEFAULT 'llm_analysis',
+    cvss_score    REAL DEFAULT 0.0,
     is_verified   INTEGER DEFAULT 0,
     false_positive INTEGER DEFAULT 0,
-    cvss_score    REAL DEFAULT 0.0,
+    chain_ids_json TEXT DEFAULT '[]',
     metadata_json TEXT DEFAULT '{}',
     discovered_at TEXT NOT NULL,
     FOREIGN KEY (target_id) REFERENCES targets(id)
@@ -180,11 +193,34 @@ CREATE TABLE IF NOT EXISTS vulnerabilities (
 CREATE INDEX IF NOT EXISTS idx_vulns_severity ON vulnerabilities(severity);
 CREATE INDEX IF NOT EXISTS idx_vulns_category ON vulnerabilities(category);
 
+-- Exploit Chains
+CREATE TABLE IF NOT EXISTS exploit_chains (
+    id            TEXT PRIMARY KEY,
+    target_id     TEXT NOT NULL,
+    title         TEXT NOT NULL,
+    description   TEXT DEFAULT '',
+    vulnerability_ids_json TEXT DEFAULT '[]',
+    combined_severity TEXT DEFAULT 'high',
+    impact        TEXT DEFAULT '',
+    attack_path_json TEXT DEFAULT '[]',
+    metadata_json TEXT DEFAULT '{}',
+    FOREIGN KEY (target_id) REFERENCES targets(id)
+);
+
+-- Feedback
+CREATE TABLE IF NOT EXISTS feedback (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    vulnerability_id TEXT,
+    is_true_positive INTEGER,
+    researcher_notes TEXT DEFAULT '',
+    created_at    TEXT NOT NULL
+);
+
 -- LLM Chunks (audit trail of every chunk sent to LLM)
 CREATE TABLE IF NOT EXISTS llm_chunks (
     id            TEXT PRIMARY KEY,
     target_id     TEXT NOT NULL,
-    scan_run_id   TEXT,
+    scan_id       TEXT DEFAULT '',
     source_file   TEXT NOT NULL,
     chunk_index   INTEGER NOT NULL,
     total_chunks  INTEGER DEFAULT 0,
@@ -208,7 +244,7 @@ CREATE INDEX IF NOT EXISTS idx_llm_file ON llm_chunks(source_file);
 CREATE TABLE IF NOT EXISTS llm_analyses (
     id            TEXT PRIMARY KEY,
     target_id     TEXT NOT NULL,
-    scan_run_id   TEXT,
+    scan_id       TEXT DEFAULT '',
     source_file   TEXT NOT NULL,
     merged_text   TEXT DEFAULT '',
     chunks_total  INTEGER DEFAULT 0,
@@ -229,7 +265,7 @@ CREATE TABLE IF NOT EXISTS action_log (
     tool_name     TEXT DEFAULT '',
     details_json  TEXT DEFAULT '{}',
     level         TEXT DEFAULT 'INFO',
-    scan_run_id   TEXT
+    scan_id       TEXT DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS idx_actions_ts ON action_log(timestamp);
 """
@@ -311,20 +347,20 @@ class DBManager:
     #  Scan Runs
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    def start_scan_run(self, target_id: str, run_type: str = "passive_recon") -> str:
-        """Start a new scan run. Returns scan_run_id."""
+    def start_scan(self, target_id: str, scan_type: str = "passive_recon") -> str:
+        """Start a new scan run. Returns scan_id."""
         rid = _uid()
-        self._exec("""INSERT INTO scan_runs
-            (id, target_id, run_type, status, started_at)
+        self._exec("""INSERT INTO scans
+            (id, target_id, scan_type, status, started_at)
             VALUES (?,?,?,?,?)""",
-                   (rid, target_id, run_type, "running", _now()))
+                   (rid, target_id, scan_type, "running", _now()))
         self.conn.commit()
         return rid
 
-    def update_scan_run(self, run_id: str, status: str = "completed",
+    def update_scan(self, run_id: str, status: str = "completed",
                         steps: list = None, stats: dict = None):
-        self._exec("""UPDATE scan_runs SET status=?, steps_json=?,
-                      stats_json=?, completed_at=? WHERE id=?""",
+        self._exec("""UPDATE scans SET status=?, errors_json=?,
+                      metadata_json=?, completed_at=? WHERE id=?""",
                    (status, json.dumps(steps or []),
                     json.dumps(stats or {}), _now(), run_id))
         self.conn.commit()
@@ -333,7 +369,7 @@ class DBManager:
     #  Assets (Subdomains, IPs)
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    def store_assets(self, target_id: str, scan_run_id: str,
+    def store_assets(self, target_id: str, scan_id: str,
                      assets: list[dict]) -> int:
         """
         Bulk-insert assets. Each dict: {type, value, source, in_scope, metadata}
@@ -348,10 +384,10 @@ class DBManager:
             if existing:
                 continue
             self._exec("""INSERT INTO assets
-                (id, target_id, scan_run_id, asset_type, value, source,
+                (id, target_id, scan_id, asset_type, value, source,
                  in_scope, metadata_json, discovered_at)
                 VALUES (?,?,?,?,?,?,?,?,?)""",
-                       (_uid(), target_id, scan_run_id,
+                       (_uid(), target_id, scan_id,
                         a.get("type", "subdomain"), a["value"],
                         a.get("source", ""), a.get("in_scope", 1),
                         json.dumps(a.get("metadata", {})), _now()))
@@ -371,7 +407,7 @@ class DBManager:
     #  Endpoints (URLs)
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    def store_endpoints(self, target_id: str, scan_run_id: str,
+    def store_endpoints(self, target_id: str, scan_id: str,
                         endpoints: list[dict]) -> int:
         """
         Bulk-insert endpoints. Each dict: {url, source, is_interesting, category}
@@ -385,10 +421,10 @@ class DBManager:
             if existing:
                 continue
             self._exec("""INSERT INTO endpoints
-                (id, target_id, scan_run_id, url, method, source,
+                (id, target_id, scan_id, url, method, source,
                  is_interesting, category, metadata_json, discovered_at)
                 VALUES (?,?,?,?,?,?,?,?,?,?)""",
-                       (_uid(), target_id, scan_run_id,
+                       (_uid(), target_id, scan_id,
                         ep["url"], ep.get("method", "GET"),
                         ep.get("source", ""),
                         ep.get("is_interesting", 0),
@@ -410,7 +446,7 @@ class DBManager:
     #  Parameters
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    def store_parameters(self, target_id: str, scan_run_id: str,
+    def store_parameters(self, target_id: str, scan_id: str,
                          params: list[dict]) -> int:
         """Store discovered parameters. Each: {name, location, sample_urls, is_interesting}"""
         inserted = 0
@@ -437,16 +473,16 @@ class DBManager:
     #  DNS Records
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    def store_dns_records(self, target_id: str, scan_run_id: str,
+    def store_dns_records(self, target_id: str, scan_id: str,
                           records: list[dict]) -> int:
         """Store DNS records. Each: {subdomain, record_type, value, raw_line}"""
         inserted = 0
         for r in records:
             self._exec("""INSERT INTO dns_records
-                (id, target_id, scan_run_id, subdomain, record_type, value,
+                (id, target_id, scan_id, subdomain, record_type, value,
                  raw_line, discovered_at)
                 VALUES (?,?,?,?,?,?,?,?)""",
-                       (_uid(), target_id, scan_run_id,
+                       (_uid(), target_id, scan_id,
                         r.get("subdomain", ""), r.get("record_type", ""),
                         r.get("value", ""), r.get("raw_line", ""), _now()))
             inserted += 1
@@ -457,16 +493,16 @@ class DBManager:
     #  Technologies
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    def store_technologies(self, target_id: str, scan_run_id: str,
+    def store_technologies(self, target_id: str, scan_id: str,
                            techs: list[dict]) -> int:
         """Store tech detection results."""
         inserted = 0
         for t in techs:
             self._exec("""INSERT INTO technologies
-                (id, target_id, scan_run_id, url, header_name, header_value,
+                (id, target_id, scan_id, url, header_name, header_value,
                  tech_name, raw_headers, discovered_at)
                 VALUES (?,?,?,?,?,?,?,?,?)""",
-                       (_uid(), target_id, scan_run_id,
+                       (_uid(), target_id, scan_id,
                         t.get("url", ""), t.get("header_name", ""),
                         t.get("header_value", ""), t.get("tech_name", ""),
                         t.get("raw_headers", ""), _now()))
@@ -478,16 +514,16 @@ class DBManager:
     #  Vulnerabilities / Findings
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    def store_vulnerability(self, target_id: str, scan_run_id: str,
+    def store_vulnerability(self, target_id: str, scan_id: str,
                             vuln: dict) -> str:
         """Store a single vulnerability/finding. Returns vuln_id."""
         vid = _uid()
         self._exec("""INSERT INTO vulnerabilities
-            (id, target_id, scan_run_id, title, category, severity,
+            (id, target_id, scan_id, title, category, severity,
              description, url, parameter, evidence, impact, remediation,
              next_steps, confidence, source, cvss_score, metadata_json, discovered_at)
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-                   (vid, target_id, scan_run_id,
+                   (vid, target_id, scan_id,
                     vuln.get("title", "Untitled"),
                     vuln.get("category", "other"),
                     vuln.get("severity", "info").lower(),
@@ -505,12 +541,12 @@ class DBManager:
         self.conn.commit()
         return vid
 
-    def store_vulnerabilities(self, target_id: str, scan_run_id: str,
+    def store_vulnerabilities(self, target_id: str, scan_id: str,
                               vulns: list[dict]) -> int:
         """Bulk-store vulnerabilities."""
         count = 0
         for v in vulns:
-            self.store_vulnerability(target_id, scan_run_id, v)
+            self.store_vulnerability(target_id, scan_id, v)
             count += 1
         return count
 
@@ -528,17 +564,17 @@ class DBManager:
     #  LLM Chunks (audit)
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    def store_llm_chunk(self, target_id: str, scan_run_id: str,
+    def store_llm_chunk(self, target_id: str, scan_id: str,
                         chunk_data: dict) -> str:
         """Store a single LLM chunk interaction."""
         cid = _uid()
         self._exec("""INSERT INTO llm_chunks
-            (id, target_id, scan_run_id, source_file, chunk_index,
+            (id, target_id, scan_id, source_file, chunk_index,
              total_chunks, chunk_hash, chunk_chars, chunk_lines,
              prompt_text, response_text, tokens_prompt, tokens_eval,
              duration_s, success, error, llm_model, created_at)
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-                   (cid, target_id, scan_run_id,
+                   (cid, target_id, scan_id,
                     chunk_data.get("source_file", ""),
                     chunk_data.get("chunk_index", 0),
                     chunk_data.get("total_chunks", 0),
@@ -570,15 +606,15 @@ class DBManager:
     #  LLM Analyses (merged)
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    def store_llm_analysis(self, target_id: str, scan_run_id: str,
+    def store_llm_analysis(self, target_id: str, scan_id: str,
                            analysis: dict) -> str:
         """Store merged per-file LLM analysis."""
         aid = _uid()
         self._exec("""INSERT INTO llm_analyses
-            (id, target_id, scan_run_id, source_file, merged_text,
+            (id, target_id, scan_id, source_file, merged_text,
              chunks_total, chunks_done, total_tokens, total_duration_s, created_at)
             VALUES (?,?,?,?,?,?,?,?,?,?)""",
-                   (aid, target_id, scan_run_id,
+                   (aid, target_id, scan_id,
                     analysis.get("source_file", ""),
                     analysis.get("merged_text", ""),
                     analysis.get("chunks_total", 0),
@@ -601,22 +637,22 @@ class DBManager:
     def log_action(self, action: str, target: str = "",
                    step_name: str = "", tool_name: str = "",
                    details: dict = None, level: str = "INFO",
-                   scan_run_id: str = ""):
+                   scan_id: str = ""):
         """Log an action to the audit trail."""
         self._exec("""INSERT INTO action_log
             (timestamp, action, target, step_name, tool_name,
-             details_json, level, scan_run_id)
+             details_json, level, scan_id)
             VALUES (?,?,?,?,?,?,?,?)""",
                    (_now(), action, target, step_name, tool_name,
-                    json.dumps(details or {}), level, scan_run_id))
+                    json.dumps(details or {}), level, scan_id))
         self.conn.commit()
 
-    def get_action_log(self, scan_run_id: str = None,
+    def get_action_log(self, scan_id: str = None,
                        limit: int = 100) -> list[dict]:
-        if scan_run_id:
+        if scan_id:
             return self._fetch_all(
-                "SELECT * FROM action_log WHERE scan_run_id=? ORDER BY timestamp DESC LIMIT ?",
-                (scan_run_id, limit))
+                "SELECT * FROM action_log WHERE scan_id=? ORDER BY timestamp DESC LIMIT ?",
+                (scan_id, limit))
         return self._fetch_all(
             "SELECT * FROM action_log ORDER BY timestamp DESC LIMIT ?",
             (limit,))
@@ -663,7 +699,11 @@ class DBManager:
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 class SafetyChecker:
-    """Lightweight safety gate that checks scope before every action."""
+    """
+    Safety gate for scope enforcement.
+    Delegates to bbhunter.safety.SafetyGate when available, falls back to
+    local rule checking so scripts work even when bbhunter is not installed.
+    """
 
     def __init__(self, rules: dict):
         self.rules = rules
@@ -671,8 +711,24 @@ class SafetyChecker:
         self.oos_wildcards = rules.get("out_of_scope_wildcards", [])
         self.oos_paths = rules.get("out_of_scope_paths", [])
 
+        # Try to reuse the unified SafetyGate
+        self._gate = None
+        try:
+            from bbhunter.safety import get_safety_gate
+            self._gate = get_safety_gate()
+        except Exception as exc:
+            logging.debug(f"Failed to load safety gate: {exc}")
+
     def is_in_scope(self, domain_or_url: str) -> bool:
         """Check if a domain/URL is in scope."""
+        # Prefer unified gate when available
+        if self._gate is not None:
+            return self._gate.is_in_scope(domain_or_url)
+
+        return self._local_check(domain_or_url)
+
+    def _local_check(self, domain_or_url: str) -> bool:
+        """Fallback local scope check using rules dict."""
         domain = domain_or_url
         path = ""
         if "://" in domain_or_url:

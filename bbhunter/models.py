@@ -5,7 +5,7 @@ Core data models used across all engines.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Optional
 
@@ -22,6 +22,7 @@ class Severity(str, Enum):
     MEDIUM = "medium"
     LOW = "low"
     INFORMATIONAL = "informational"
+    INFO = "informational"  # alias for convenience
 
 
 class VulnCategory(str, Enum):
@@ -93,7 +94,7 @@ class Target(BaseModel):
     scope: ScopeRule = ScopeRule()
     authorization: Authorization = Authorization()
     rules: dict[str, Any] = Field(default_factory=dict)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ---------------------------------------------------------------------------
@@ -107,7 +108,7 @@ class Asset(BaseModel):
     value: str                    # domain name, IP, URL, etc.
     source: str = ""              # how it was discovered
     metadata: dict[str, Any] = Field(default_factory=dict)
-    discovered_at: datetime = Field(default_factory=datetime.utcnow)
+    discovered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ---------------------------------------------------------------------------
@@ -163,7 +164,7 @@ class Vulnerability(BaseModel):
     false_positive: bool = False
     chain_ids: list[str] = Field(default_factory=list)  # linked vulns
     metadata: dict[str, Any] = Field(default_factory=dict)
-    discovered_at: datetime = Field(default_factory=datetime.utcnow)
+    discovered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ---------------------------------------------------------------------------
@@ -182,6 +183,35 @@ class ScanResult(BaseModel):
     vulnerabilities_found: int = 0
     errors: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    # -- dict-like helpers so callers can do result.get("key") transparently --
+    def get(self, key: str, default: Any = None) -> Any:
+        """Dict-like access into metadata (used by CLI & dashboard)."""
+        return self.metadata.get(key, default)
+
+    def items(self):
+        """Iterate over metadata items (used by CLI recon display)."""
+        return self.metadata.items()
+
+    def __getitem__(self, key: str) -> Any:
+        return self.metadata[key]
+
+    def to_serializable(self) -> dict[str, Any]:
+        """Return a fully JSON-safe dict (model objects → dicts)."""
+        from pydantic import BaseModel as _BM
+
+        def _ser(obj: Any) -> Any:
+            if isinstance(obj, _BM):
+                return obj.model_dump(mode="python")
+            if isinstance(obj, list):
+                return [_ser(i) for i in obj]
+            if isinstance(obj, dict):
+                return {k: _ser(v) for k, v in obj.items()}
+            return obj
+
+        data = self.model_dump(exclude={"metadata"})
+        data["metadata"] = _ser(self.metadata)
+        return data
 
 
 # ---------------------------------------------------------------------------
@@ -212,7 +242,7 @@ class Report(BaseModel):
     chain: Optional[ExploitChain] = None
     format: str = "markdown"
     content: str = ""
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # We need to rebuild Endpoint since Parameter was defined after it was referenced

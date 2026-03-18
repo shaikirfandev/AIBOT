@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -255,7 +255,7 @@ class ReportEngine:
             impact=vulnerability.impact,
             remediation=vulnerability.remediation,
             cvss_score=vulnerability.cvss_score,
-            generated_at=datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+            generated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
         )
 
         report = Report(
@@ -291,7 +291,7 @@ class ReportEngine:
 
         content = tmpl.render(
             target_domain=target_domain,
-            generated_at=datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+            generated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
             stats=analysis_results.get("statistics", {}),
             impact=analysis_results.get("impact_summary", {}),
             critical_vulns=critical_vulns,
@@ -317,7 +317,7 @@ class ReportEngine:
                 "tool": "BugBounty Hunter Suite",
                 "version": "1.0.0",
                 "target": target_domain,
-                "generated_at": datetime.utcnow().isoformat(),
+                "generated_at": datetime.now(timezone.utc).isoformat(),
             },
             "statistics": analysis_results.get("statistics", {}),
             "impact_summary": analysis_results.get("impact_summary", {}),
@@ -339,27 +339,31 @@ class ReportEngine:
         vulnerabilities: list[Vulnerability],
         chains: list[ExploitChain],
         analysis_results: dict[str, Any],
-    ) -> list[str]:
-        """Generate all report formats."""
-        generated = []
+    ) -> list[dict[str, str]]:
+        """Generate all report formats.
+
+        Returns:
+            A list of ``{"format": "<fmt>", "content": "<text>"}`` dicts.
+        """
+        generated: list[dict[str, str]] = []
 
         # Individual vulnerability reports
         for vuln in vulnerabilities:
             if vuln.severity in (Severity.CRITICAL, Severity.HIGH, Severity.MEDIUM):
                 report = self.generate_vulnerability_report(vuln)
-                generated.append(report.content)
+                generated.append({"format": "markdown", "content": report.content})
 
         # Executive summary
         summary = self.generate_executive_summary(
             target_domain, vulnerabilities, chains, analysis_results
         )
-        generated.append(summary)
+        generated.append({"format": "summary", "content": summary})
 
         # JSON report
         json_report = self.generate_json_report(
             target_domain, vulnerabilities, chains, analysis_results
         )
-        generated.append(json_report)
+        generated.append({"format": "json", "content": json_report})
 
         return generated
 

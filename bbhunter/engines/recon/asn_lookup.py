@@ -35,7 +35,7 @@ class ASNLookup:
             import dns.resolver
             import asyncio
             
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
             resolver = dns.resolver.Resolver()
             answers = await loop.run_in_executor(None, resolver.resolve, domain, "A")
             
@@ -90,8 +90,8 @@ class ASNLookup:
                             "org": data.get("org", ""),
                             "isp": data.get("isp", ""),
                         }
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug(f"ASN lookup failed: {exc}")
         return None
 
     async def _get_asn_prefixes(self, asn: str) -> list[str]:
@@ -109,6 +109,6 @@ class ASNLookup:
                         line = line.strip()
                         if "/" in line and not line.startswith("No"):
                             prefixes.append(line)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug(f"ASN prefix fetch failed: {exc}")
         return prefixes[:20]  # Limit results

@@ -19,6 +19,7 @@ Usage:
 """
 
 import argparse
+import logging
 import os
 import shutil
 import sqlite3
@@ -356,8 +357,8 @@ def _clean_db_target(domain: str, dry_run: bool = False, quiet: bool = False):
                             f"DELETE FROM {table} WHERE {col} = ?",
                             (target_id,)
                         )
-        except Exception:
-            pass  # Table might not exist
+        except Exception as exc:
+            logging.debug(f"Failed to delete from table {table}: {exc}")
 
     # Delete the target itself
     if not dry_run:

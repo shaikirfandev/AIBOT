@@ -122,6 +122,44 @@ class APIKeysConfig(BaseModel):
     github_token: str = ""
 
 
+class LLMConfig(BaseModel):
+    """Local LLM (Ollama) configuration."""
+    api_url: str = "http://localhost:11434"
+    model: str = "dolphin-llama3:8b"
+    chunk_size_chars: int = 3000
+    chunk_overlap_chars: int = 200
+    max_response_tokens: int = 2048
+    temperature: float = 0.3
+    request_timeout: int = 300
+    num_ctx: int = 4096
+    num_batch: int = 256
+
+
+class TargetRules(BaseModel):
+    """Per-target program rules (e.g., DoorDash HackerOne rules)."""
+    no_automated_scanners: bool = False
+    no_brute_force: bool = False
+    no_dos: bool = False
+    required_header: str = ""
+    in_scope: list[str] = Field(default_factory=list)
+    out_of_scope_domains: list[str] = Field(default_factory=list)
+    out_of_scope_wildcards: list[str] = Field(default_factory=list)
+    out_of_scope_paths: list[str] = Field(default_factory=list)
+
+
+class PipelineConfig(BaseModel):
+    """Pipeline orchestration settings."""
+    target_domain: str = ""
+    program_name: str = ""
+    data_dir: str = "./data"
+    llm_output_dir: str = "./llm_analysis"
+    reports_dir: str = "./reports"
+    logs_dir: str = "./logs"
+    step_timeout: int = 600
+    llm_chunk_timeout: int = 300
+    max_consecutive_failures: int = 3
+
+
 class AppConfig(BaseModel):
     name: str = "BugBounty Hunter Suite"
     version: str = "1.0.0"
@@ -145,6 +183,9 @@ class Config(BaseModel):
     dashboard: DashboardConfig = DashboardConfig()
     learning: LearningConfig = LearningConfig()
     api_keys: APIKeysConfig = APIKeysConfig()
+    llm: LLMConfig = LLMConfig()
+    pipeline: PipelineConfig = PipelineConfig()
+    target_rules: TargetRules = TargetRules()
 
 
 # ---------------------------------------------------------------------------

@@ -6,23 +6,19 @@ Ensures that ALL operations are performed only against authorized targets.
 from __future__ import annotations
 
 import fnmatch
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import yaml
 
 from bbhunter.config import get_config
+from bbhunter.exceptions import AuthorizationError  # noqa: F401 – re-exported
 from bbhunter.logger import get_action_logger, get_logger
 from bbhunter.models import Authorization, ScopeRule, Target
 
 logger = get_logger()
 action_logger = get_action_logger()
-
-
-class AuthorizationError(Exception):
-    """Raised when an operation targets an unauthorized asset."""
-    pass
 
 
 class SafetyGate:
@@ -123,21 +119,40 @@ class SafetyGate:
             return Target(domain=domain)
 
         for target in self.authorized_targets:
-            if self.is_target_authorized(domain):
-                # Check expiry
-                if target.authorization.expiry_date:
-                    try:
-                        expiry = datetime.strptime(target.authorization.expiry_date, "%Y-%m-%d")
-                        if datetime.utcnow() > expiry:
-                            raise AuthorizationError(
-                                f"Authorization for {domain} expired on {target.authorization.expiry_date}"
-                            )
-                    except ValueError:
-                        pass
+            # Check if *this* target matches the domain (not all targets)
+            match = False
+            if domain == target.domain:
+                match = True
+            else:
+                for pattern in target.scope.include:
+                    if fnmatch.fnmatch(domain, pattern):
+                        excluded = any(
+                            fnmatch.fnmatch(domain, exc)
+                            for exc in target.scope.exclude
+                        )
+                        if not excluded:
+                            match = True
+                            break
 
-                action_logger.log("authorization_granted", domain, {"action": action})
-                logger.info(f"✅ Authorization confirmed for: {domain}")
-                return target
+            if not match:
+                continue
+
+            # Check expiry
+            if target.authorization.expiry_date:
+                try:
+                    expiry = datetime.strptime(target.authorization.expiry_date, "%Y-%m-%d").replace(
+                        tzinfo=timezone.utc
+                    )
+                    if datetime.now(timezone.utc) > expiry:
+                        raise AuthorizationError(
+                            f"Authorization for {domain} expired on {target.authorization.expiry_date}"
+                        )
+                except ValueError:
+                    logger.warning(f"Invalid expiry_date format for {domain}: {target.authorization.expiry_date}")
+
+            action_logger.log("authorization_granted", domain, {"action": action})
+            logger.info(f"✅ Authorization confirmed for: {domain}")
+            return target
 
         action_logger.log("authorization_denied", domain, {"action": action}, level="ERROR")
         raise AuthorizationError(
@@ -155,6 +170,43 @@ class SafetyGate:
     def is_method_banned(self, method: str) -> bool:
         """Check if a testing method is banned."""
         return method.lower() in self.config.safety.banned_methods
+
+    def is_in_scope(self, domain_or_url: str) -> bool:
+        """
+        Check if a domain or URL is in scope (compatible with scripts/ SafetyChecker).
+        Extracts hostname from URL if needed, checks against all target scopes.
+        """
+        from urllib.parse import urlparse
+
+        # Extract hostname
+        hostname = domain_or_url
+        path = ""
+        if "://" in domain_or_url:
+            parsed = urlparse(domain_or_url)
+            hostname = parsed.hostname or ""
+            path = parsed.path or ""
+        elif "/" in domain_or_url:
+            hostname = domain_or_url.split("/")[0].split(":")[0]
+            path = "/" + "/".join(domain_or_url.split("/")[1:])
+
+        for target in self.authorized_targets:
+            # Check exclusion first
+            excluded = False
+            for pattern in target.scope.exclude:
+                if fnmatch.fnmatch(hostname, pattern):
+                    excluded = True
+                    break
+            if excluded:
+                continue
+
+            # Check inclusion
+            if hostname == target.domain:
+                return True
+            for pattern in target.scope.include:
+                if fnmatch.fnmatch(hostname, pattern):
+                    return True
+
+        return False
 
 
 # Singleton

@@ -6,7 +6,7 @@ Provides persistence for all scan data, assets, and vulnerabilities.
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy import (
@@ -38,10 +38,12 @@ class TargetRow(Base):
 
     id = Column(String, primary_key=True)
     domain = Column(String, nullable=False, index=True)
+    program = Column(String, default="")
+    platform = Column(String, default="")
     scope_json = Column(Text, default="{}")
     authorization_json = Column(Text, default="{}")
     rules_json = Column(Text, default="{}")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class AssetRow(Base):
@@ -49,11 +51,13 @@ class AssetRow(Base):
 
     id = Column(String, primary_key=True)
     target_id = Column(String, index=True, nullable=False)
+    scan_id = Column(String, default="")
     asset_type = Column(String, nullable=False)
     value = Column(String, nullable=False)
     source = Column(String, default="")
+    in_scope = Column(Boolean, default=True)
     metadata_json = Column(Text, default="{}")
-    discovered_at = Column(DateTime, default=datetime.utcnow)
+    discovered_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class EndpointRow(Base):
@@ -61,14 +65,18 @@ class EndpointRow(Base):
 
     id = Column(String, primary_key=True)
     target_id = Column(String, index=True, nullable=False)
+    scan_id = Column(String, default="")
     url = Column(String, nullable=False)
     method = Column(String, default="GET")
+    status_code = Column(Integer, default=0)
+    content_type = Column(String, default="")
+    source = Column(String, default="")
+    is_interesting = Column(Boolean, default=False)
+    category = Column(String, default="")
     parameters_json = Column(Text, default="[]")
     headers_json = Column(Text, default="{}")
     auth_required = Column(Boolean, default=False)
     technology_json = Column(Text, default="[]")
-    content_type = Column(String, default="")
-    status_code = Column(Integer, default=0)
     metadata_json = Column(Text, default="{}")
 
 
@@ -91,13 +99,15 @@ class VulnerabilityRow(Base):
     steps_json = Column(Text, default="[]")
     impact = Column(Text, default="")
     remediation = Column(Text, default="")
+    next_steps = Column(Text, default="")
     cvss_score = Column(Float, default=0.0)
     confidence = Column(Float, default=0.0)
     is_verified = Column(Boolean, default=False)
     false_positive = Column(Boolean, default=False)
+    source = Column(String, default="engine")
     chain_ids_json = Column(Text, default="[]")
     metadata_json = Column(Text, default="{}")
-    discovered_at = Column(DateTime, default=datetime.utcnow)
+    discovered_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 class ScanRow(Base):
@@ -137,7 +147,104 @@ class FeedbackRow(Base):
     vulnerability_id = Column(String, index=True)
     is_true_positive = Column(Boolean)
     researcher_notes = Column(Text, default="")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+# ---------------------------------------------------------------------------
+# Tables used by the scripts/ pipeline (shared schema)
+# ---------------------------------------------------------------------------
+
+class ParameterRow(Base):
+    __tablename__ = "parameters"
+
+    id = Column(String, primary_key=True)
+    target_id = Column(String, index=True, nullable=False)
+    endpoint_id = Column(String, default="")
+    name = Column(String, nullable=False)
+    location = Column(String, default="query")
+    sample_urls = Column(Text, default="[]")
+    is_interesting = Column(Boolean, default=False)
+    metadata_json = Column(Text, default="{}")
+    discovered_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class DnsRecordRow(Base):
+    __tablename__ = "dns_records"
+
+    id = Column(String, primary_key=True)
+    target_id = Column(String, index=True, nullable=False)
+    scan_id = Column(String, default="")
+    subdomain = Column(String, nullable=False)
+    record_type = Column(String, default="")
+    value = Column(String, default="")
+    raw_line = Column(String, default="")
+    discovered_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class TechnologyRow(Base):
+    __tablename__ = "technologies"
+
+    id = Column(String, primary_key=True)
+    target_id = Column(String, index=True, nullable=False)
+    scan_id = Column(String, default="")
+    url = Column(String, nullable=False)
+    header_name = Column(String, default="")
+    header_value = Column(String, default="")
+    tech_name = Column(String, default="")
+    raw_headers = Column(Text, default="")
+    discovered_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class LlmChunkRow(Base):
+    __tablename__ = "llm_chunks"
+
+    id = Column(String, primary_key=True)
+    target_id = Column(String, index=True, nullable=False)
+    scan_id = Column(String, default="")
+    source_file = Column(String, nullable=False)
+    chunk_index = Column(Integer, nullable=False)
+    total_chunks = Column(Integer, default=0)
+    chunk_hash = Column(String, default="")
+    chunk_chars = Column(Integer, default=0)
+    chunk_lines = Column(Integer, default=0)
+    prompt_text = Column(Text, default="")
+    response_text = Column(Text, default="")
+    tokens_prompt = Column(Integer, default=0)
+    tokens_eval = Column(Integer, default=0)
+    duration_s = Column(Float, default=0.0)
+    success = Column(Boolean, default=False)
+    error = Column(Text, default="")
+    llm_model = Column(String, default="")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class LlmAnalysisRow(Base):
+    __tablename__ = "llm_analyses"
+
+    id = Column(String, primary_key=True)
+    target_id = Column(String, index=True, nullable=False)
+    scan_id = Column(String, default="")
+    source_file = Column(String, nullable=False)
+    merged_text = Column(Text, default="")
+    chunks_total = Column(Integer, default=0)
+    chunks_done = Column(Integer, default=0)
+    total_tokens = Column(Integer, default=0)
+    total_duration_s = Column(Float, default=0.0)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class ActionLogRow(Base):
+    __tablename__ = "action_log"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    action = Column(String, nullable=False)
+    target = Column(String, default="")
+    step_name = Column(String, default="")
+    tool_name = Column(String, default="")
+    details_json = Column(Text, default="{}")
+    level = Column(String, default="INFO")
+    scan_id = Column(String, default="")
 
 
 # ---------------------------------------------------------------------------

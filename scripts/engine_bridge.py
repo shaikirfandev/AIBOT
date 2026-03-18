@@ -44,7 +44,7 @@ sys.path.insert(0, str(BASE_DIR))
 # ── Scripts-side imports ──────────────────────────────────────
 from config import (
     TARGET_DOMAIN, TARGET_DIR, TARGET_LLM_DIR, TARGET_REPORT_DIR,
-    DOORDASH_RULES, LOGS_DIR, ensure_dirs,
+    DOORDASH_RULES, LOGS_DIR, ensure_dirs, PROGRAM_NAME,
 )
 from db_manager import get_db, DBManager
 
@@ -549,7 +549,14 @@ def run_learning_engine(vulns: list[Vulnerability]) -> dict[str, Any]:
             module = LearningModule()
             for vuln in vulns:
                 if not vuln.false_positive:
-                    module.record_feedback(vuln, is_true_positive=True)
+                    module.record_feedback(
+                        vulnerability_id=vuln.id,
+                        is_true_positive=True,
+                        category=vuln.category.value,
+                        url_pattern=vuln.url,
+                        confidence=vuln.confidence,
+                        notes="auto-confirmed by analysis engine",
+                    )
             stats = module.get_statistics()
             log(f"  ✅ Learning (basic): {stats}")
             return stats
@@ -568,7 +575,7 @@ def run_learning_engine(vulns: list[Vulnerability]) -> dict[str, Any]:
 def store_engine_results(
     db: DBManager,
     target_id: str,
-    scan_run_id: str,
+    scan_id: str,
     surface_endpoints: list[Endpoint],
     scanner_vulns: list[Vulnerability],
     analysis_results: dict[str, Any],
@@ -584,7 +591,7 @@ def store_engine_results(
                 "is_interesting": 1 if ep.parameters else 0,
                 "category": "surface_mapping"}
                for ep in surface_endpoints]
-        inserted = db.store_endpoints(target_id, scan_run_id, eps)
+        inserted = db.store_endpoints(target_id, scan_id, eps)
         log(f"  {inserted} surface endpoints → DB")
 
     # Scanner vulnerabilities
@@ -603,7 +610,7 @@ def store_engine_results(
                 "source": "engine_scanner",
                 "description": v.description[:500] if v.description else "",
             })
-        db.store_vulnerabilities(target_id, scan_run_id, vuln_dicts)
+        db.store_vulnerabilities(target_id, scan_id, vuln_dicts)
         log(f"  {len(vuln_dicts)} verified vulnerabilities → DB")
 
     # Exploit chains
@@ -614,7 +621,7 @@ def store_engine_results(
                 "title": chain.title if hasattr(chain, "title") else str(chain),
                 "severity": chain.combined_severity.value if hasattr(chain, "combined_severity") else "high",
                 "impact": chain.impact if hasattr(chain, "impact") else "",
-            }, scan_run_id=scan_run_id)
+            }, scan_id=scan_id)
         log(f"  {len(chains)} exploit chains → DB")
 
     # Payloads
@@ -622,14 +629,14 @@ def store_engine_results(
         db.log_action("payloads_generated", TARGET_DOMAIN, details={
             "vuln_count": len(payloads),
             "total_payloads": sum(len(v) for v in payloads.values()),
-        }, scan_run_id=scan_run_id)
+        }, scan_id=scan_id)
 
     # Assistant suggestions
     if suggestions:
         db.log_action("assistant_suggestions", TARGET_DOMAIN, details={
             "endpoints_analyzed": len(suggestions),
             "total_vectors": sum(len(s["vectors"]) for s in suggestions),
-        }, scan_run_id=scan_run_id)
+        }, scan_id=scan_id)
 
     log("  ✅ All engine results stored in DB")
 
@@ -793,11 +800,11 @@ async def run_all_engines(engines_to_run: list[str] | None = None):
 
     # ── Initialize DB ──
     db = get_db()
-    target_id = db.upsert_target(TARGET_DOMAIN, "HackerOne - DoorDash",
+    target_id = db.upsert_target(TARGET_DOMAIN, PROGRAM_NAME,
                                   "hackerone", {}, DOORDASH_RULES)
-    scan_run_id = db.start_scan_run(target_id, "engine_pipeline")
+    scan_id = db.start_scan(target_id, "engine_pipeline")
     db.log_action("engine_pipeline_start", TARGET_DOMAIN,
-                  details={"engines": run_list}, scan_run_id=scan_run_id)
+                  details={"engines": run_list}, scan_id=scan_id)
 
     # ── Tracking variables ──
     surface_endpoints: list[Endpoint] = []
@@ -853,7 +860,7 @@ async def run_all_engines(engines_to_run: list[str] | None = None):
 
     # ── Store results ──
     store_engine_results(
-        db, target_id, scan_run_id,
+        db, target_id, scan_id,
         surface_endpoints, scanner_vulns,
         analysis_results, payloads, suggestions,
     )
@@ -866,13 +873,13 @@ async def run_all_engines(engines_to_run: list[str] | None = None):
 
     # ── Finalize ──
     elapsed = time.time() - total_start
-    db.update_scan_run(scan_run_id, "completed",
+    db.update_scan(scan_id, "completed",
                        steps=run_list,
                        stats=db.get_stats(target_id))
     db.log_action("engine_pipeline_complete", TARGET_DOMAIN,
                   details={"duration_s": round(elapsed, 1),
                            "engines_run": run_list},
-                  scan_run_id=scan_run_id)
+                  scan_id=scan_id)
 
     log(f"\n{'═'*60}")
     log(f"  ENGINE PIPELINE COMPLETE")

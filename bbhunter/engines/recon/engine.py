@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from bbhunter.config import get_config
@@ -76,7 +76,7 @@ class ReconEngine:
             target_id=target.id,
             scan_type="recon",
             status=ScanStatus.RUNNING,
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
         )
         action_logger.log_scan_start("recon", domain)
         logger.info(f"🔍 Starting reconnaissance on: {domain}")
@@ -137,7 +137,7 @@ class ReconEngine:
             all_assets = self._deduplicate_assets(all_assets)
 
             scan.status = ScanStatus.COMPLETED
-            scan.completed_at = datetime.utcnow()
+            scan.completed_at = datetime.now(timezone.utc)
             scan.assets_found = len(all_assets)
 
             action_logger.log_scan_end("recon", domain, len(all_assets))
@@ -148,7 +148,20 @@ class ReconEngine:
             scan.errors.append(str(e))
             logger.error(f"❌ Reconnaissance failed: {e}")
 
-        scan.metadata["assets"] = [a.model_dump() for a in all_assets]
+        scan.metadata["assets"] = list(all_assets)
+
+        # Convenience keys expected by CLI and dashboard
+        scan.metadata["subdomains"] = [
+            a.value for a in all_assets
+            if a.asset_type in (AssetType.SUBDOMAIN, AssetType.DOMAIN)
+        ]
+        scan.metadata["urls"] = [
+            a.value for a in all_assets if a.asset_type == AssetType.URL
+        ]
+        scan.metadata["dns_records"] = [
+            a.value for a in all_assets if a.asset_type == AssetType.IP
+        ]
+
         return scan
 
     def _deduplicate_assets(self, assets: list[Asset]) -> list[Asset]:

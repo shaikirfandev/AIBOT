@@ -196,11 +196,11 @@ class SubdomainEnumerator:
             async with sem:
                 fqdn = f"{word}.{domain}"
                 try:
-                    loop = asyncio.get_event_loop()
+                    loop = asyncio.get_running_loop()
                     await loop.run_in_executor(None, resolver.resolve, fqdn, "A")
                     subdomains.add(fqdn)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.debug(f"DNS resolution failed for {fqdn}: {exc}")
 
         await asyncio.gather(*[_resolve(w) for w in words])
         return subdomains

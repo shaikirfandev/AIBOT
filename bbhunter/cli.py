@@ -38,18 +38,18 @@ BANNER = r"""
 | |_) | |_) |  _  | |_| | | | | ||  __/ |   
 |____/|____/|_| |_|\__,_|_| |_|\__\___|_|   
 [/]
-[dim]Bug Bounty Automation Suite v0.1.0[/]
+[dim]Bug Bounty Automation Suite v1.0.0[/]
 [dim]⚠️  Authorized targets only[/]
 """
 
 
 def run_async(coro):
     """Run an async coroutine from sync context."""
-    return asyncio.get_event_loop().run_until_complete(coro)
+    return asyncio.run(coro)
 
 
 @click.group()
-@click.version_option(version="0.1.0", prog_name="bbhunter")
+@click.version_option(version="1.0.0", prog_name="bbhunter")
 def main():
     """BBHunter – Bug Bounty Automation Suite."""
     pass
@@ -66,10 +66,9 @@ def recon(domain: str, quick: bool, output: str | None):
     console.print(BANNER)
     console.print(f"[bold]🔍 Recon target:[/] {domain}\n")
 
-    from bbhunter.safety import SafetyGate
-    safety = SafetyGate()
+    from bbhunter.safety import get_safety_gate
     try:
-        safety.check(domain)
+        get_safety_gate().check(domain)
     except Exception as e:
         console.print(f"[red]❌ Authorization failed:[/] {e}")
         sys.exit(1)
@@ -80,9 +79,13 @@ def recon(domain: str, quick: bool, output: str | None):
     with Progress(SpinnerColumn(), TextColumn("{task.description}"), console=console) as progress:
         task = progress.add_task("Running recon...", total=None)
         if quick:
-            results = run_async(engine.quick_recon(domain))
+            assets = run_async(engine.quick_recon(domain))
+            # Wrap list[Asset] into a dict for uniform display
+            results = {"assets": len(assets)}
         else:
-            results = run_async(engine.run(domain))
+            scan = run_async(engine.run(domain))
+            results = dict(scan.metadata)
+            results["status"] = scan.status.value
         progress.update(task, completed=True)
 
     # Display results
@@ -114,10 +117,9 @@ def surface(domain: str, depth: int, output: str | None):
     console.print(BANNER)
     console.print(f"[bold]🗺️  Surface mapping:[/] {domain}\n")
 
-    from bbhunter.safety import SafetyGate
-    safety = SafetyGate()
+    from bbhunter.safety import get_safety_gate
     try:
-        safety.check(domain)
+        get_safety_gate().check(domain)
     except Exception as e:
         console.print(f"[red]❌ Authorization failed:[/] {e}")
         sys.exit(1)
@@ -154,10 +156,9 @@ def scan(domain: str, scanners: str, output: str | None):
     console.print(BANNER)
     console.print(f"[bold]⚡ Scanning:[/] {domain}\n")
 
-    from bbhunter.safety import SafetyGate
-    safety = SafetyGate()
+    from bbhunter.safety import get_safety_gate
     try:
-        safety.check(domain)
+        get_safety_gate().check(domain)
     except Exception as e:
         console.print(f"[red]❌ Authorization failed:[/] {e}")
         sys.exit(1)
@@ -179,7 +180,7 @@ def scan(domain: str, scanners: str, output: str | None):
         table.add_column("URL")
         table.add_column("Confidence")
         for v in vulns:
-            sev = v.get("severity", "info")
+            sev = v.severity.value if hasattr(v, "severity") else (v.get("severity", "info") if isinstance(v, dict) else "info")
             style = {
                 "critical": "red bold",
                 "high": "bright_red",
@@ -187,18 +188,24 @@ def scan(domain: str, scanners: str, output: str | None):
                 "low": "green",
                 "info": "dim",
             }.get(sev, "")
+            cat = v.category.value if hasattr(v, "category") else (v.get("category", "") if isinstance(v, dict) else "")
+            url = (v.url if hasattr(v, "url") else (v.get("url", "") if isinstance(v, dict) else ""))[:60]
+            conf = v.confidence if hasattr(v, "confidence") else (v.get("confidence", 0) if isinstance(v, dict) else 0)
             table.add_row(
                 f"[{style}]{sev.upper()}[/]",
-                v.get("category", ""),
-                v.get("url", "")[:60],
-                f"{v.get('confidence', 0):.0%}",
+                cat,
+                url,
+                f"{conf:.0%}",
             )
         console.print(table)
     else:
         console.print("[yellow]No vulnerabilities found.[/]")
 
     if output:
-        Path(output).write_text(json.dumps(results, indent=2, default=str))
+        Path(output).write_text(json.dumps(
+            results.to_serializable() if hasattr(results, "to_serializable") else results,
+            indent=2, default=str,
+        ))
         console.print(f"\n[green]✅ Results saved to {output}[/]")
 
 
@@ -212,10 +219,9 @@ def full(domain: str, output: str | None):
     console.print(BANNER)
     console.print(f"[bold]🚀 Full pipeline:[/] {domain}\n")
 
-    from bbhunter.safety import SafetyGate
-    safety = SafetyGate()
+    from bbhunter.safety import get_safety_gate
     try:
-        safety.check(domain)
+        get_safety_gate().check(domain)
     except Exception as e:
         console.print(f"[red]❌ Authorization failed:[/] {e}")
         sys.exit(1)
@@ -252,7 +258,9 @@ def full(domain: str, output: str | None):
 
         # Phase 5
         t5 = progress.add_task("[cyan]Phase 5: Report Generation...", total=None)
-        report = run_async(ReportEngine().generate_all_reports(domain, analysis))
+        verified = analysis.get("verified_vulnerabilities", vulns)
+        chains = analysis.get("exploit_chains", [])
+        report = ReportEngine().generate_all_reports(domain, verified, chains, analysis)
         progress.update(t5, completed=True, description="[green]✅ Reports generated")
 
     console.print(Panel(f"[green bold]Pipeline complete for {domain}[/]\n"
@@ -263,9 +271,9 @@ def full(domain: str, output: str | None):
     if output:
         full_data = {
             "target": domain,
-            "recon": recon_results,
-            "surface": surface_results,
-            "scan": scan_results,
+            "recon": recon_results.to_serializable() if hasattr(recon_results, "to_serializable") else recon_results,
+            "surface": surface_results.to_serializable() if hasattr(surface_results, "to_serializable") else surface_results,
+            "scan": scan_results.to_serializable() if hasattr(scan_results, "to_serializable") else scan_results,
             "analysis": analysis,
             "report": report,
         }
@@ -302,16 +310,75 @@ def report(scan_id: str, template: str, output: str | None):
     """Generate a report for a completed scan."""
     console.print(BANNER)
     console.print(f"[bold]📄 Generating {template} report for {scan_id}[/]\n")
-    # In a real implementation this would load scan data from DB
-    console.print("[yellow]Report generation requires a completed scan.[/]")
-    console.print("Use [bold]bbhunter full <domain>[/] first, then generate reports.")
+
+    from bbhunter.engines.reporting.engine import ReportEngine
+    from bbhunter.database import init_sync_db, ScanRow, VulnerabilityRow
+
+    # Try to load scan data from DB
+    try:
+        SessionLocal = init_sync_db()
+        session = SessionLocal()
+        scan_row = session.query(ScanRow).filter(ScanRow.id == scan_id).first()
+        if not scan_row:
+            console.print(f"[red]❌ Scan '{scan_id}' not found in database.[/]")
+            console.print("Use [bold]bbhunter full <domain>[/] first, then generate reports.")
+            return
+
+        vuln_rows = session.query(VulnerabilityRow).filter(
+            VulnerabilityRow.scan_id == scan_id
+        ).all()
+        session.close()
+
+        # Convert DB rows to Vulnerability model objects
+        from bbhunter.models import Vulnerability, VulnCategory, Severity
+        vulns = []
+        for vr in vuln_rows:
+            vulns.append(Vulnerability(
+                id=vr.id,
+                target_id=vr.target_id,
+                scan_id=vr.scan_id,
+                category=VulnCategory(vr.category),
+                severity=Severity(vr.severity),
+                title=vr.title,
+                description=vr.description or "",
+                url=vr.url or "",
+                parameter=vr.parameter or "",
+                payload=vr.payload or "",
+                evidence=vr.evidence or "",
+                confidence=vr.confidence or 0.5,
+            ))
+
+        if not vulns:
+            console.print("[yellow]No vulnerabilities found for this scan.[/]")
+            return
+
+        engine = ReportEngine()
+        reports = engine.generate_all_reports(
+            scan_row.target_id, vulns, [], {}
+        )
+
+        for r in reports:
+            fmt = r.get("format", "unknown") if isinstance(r, dict) else "markdown"
+            content = r.get("content", "") if isinstance(r, dict) else str(r)
+            if output:
+                out_path = Path(output).with_suffix(f".{fmt}" if fmt != "json" else ".json")
+                out_path.write_text(content if isinstance(content, str) else json.dumps(content, indent=2))
+                console.print(f"[green]✅ {fmt.upper()} report saved to {out_path}[/]")
+            else:
+                console.print(Panel(content[:2000] if isinstance(content, str) else str(content)[:2000],
+                                    title=f"{fmt.upper()} Report (preview)"))
+
+    except ImportError:
+        console.print("[red]❌ Database module not available.[/]")
+    except Exception as e:
+        console.print(f"[red]❌ Report generation failed:[/] {e}")
 
 
 # ─── Dashboard ──────────────────────────────────────────────────────────
 
 @main.command()
 @click.option("--host", default="127.0.0.1", help="Bind host")
-@click.option("--port", "-p", default=8000, help="Bind port")
+@click.option("--port", "-p", default=8443, help="Bind port")
 def dashboard(host: str, port: int):
     """Launch the web dashboard."""
     console.print(BANNER)
