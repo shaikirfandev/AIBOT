@@ -147,6 +147,7 @@ def query_llm(prompt: str, system_prompt: str = "", timeout_override: int = 0, m
                 f"{LLM_API_URL}/api/generate",
                 json=payload,
                 timeout=effective_timeout,
+                proxies={"http": None, "https": None},
             )
             resp.raise_for_status()
             data = resp.json()
@@ -185,7 +186,8 @@ def query_llm(prompt: str, system_prompt: str = "", timeout_override: int = 0, m
 def check_llm_health() -> bool:
     """Verify LLM is running and model is loaded."""
     try:
-        resp = requests.get(f"{LLM_API_URL}/api/tags", timeout=5)
+        resp = requests.get(f"{LLM_API_URL}/api/tags", timeout=5,
+                            proxies={"http": None, "https": None})
         models = [m["name"] for m in resp.json().get("models", [])]
         if LLM_MODEL in models or any(LLM_MODEL.split(":")[0] in m for m in models):
             print(f"  ✓ LLM ready: {LLM_MODEL}")

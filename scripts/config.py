@@ -63,8 +63,18 @@ TOOLS = {
 }
 
 # ── LLM Configuration (from unified config.yaml) ─────────────
-LLM_API_URL = os.getenv("LLM_API_URL") or _cfg.llm.api_url
-LLM_MODEL = os.getenv("LLM_MODEL") or _cfg.llm.model
+def _resolve(env_var: str, yaml_val: str, default: str) -> str:
+    """Return env var if set, else yaml_val if it looks like a real value,
+    else default. This handles YAML values that still contain ${...} syntax."""
+    from_env = os.getenv(env_var)
+    if from_env:
+        return from_env
+    if yaml_val and not yaml_val.startswith("${"):
+        return yaml_val
+    return default
+
+LLM_API_URL = _resolve("LLM_API_URL", _cfg.llm.api_url, "http://localhost:11434")
+LLM_MODEL   = _resolve("LLM_MODEL",   _cfg.llm.model,   "dolphin-llama3:8b")
 CHUNK_SIZE_CHARS = _cfg.llm.chunk_size_chars
 CHUNK_OVERLAP_CHARS = _cfg.llm.chunk_overlap_chars
 MAX_RESPONSE_TOKENS = _cfg.llm.max_response_tokens

@@ -144,8 +144,8 @@ api_keys:
 
 # --- LLM Configuration (Ollama) ---
 llm:
-  api_url: "${LLM_API_URL:-http://localhost:11434}"
-  model: "${LLM_MODEL:-dolphin-llama3:8b}"
+  api_url: "http://localhost:11434"
+  model: "qwen2.5:3b"
   chunk_size_chars: 3000
   chunk_overlap_chars: 200
   max_response_tokens: 2048

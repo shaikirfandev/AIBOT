@@ -39,3 +39,11 @@ reports/
 # Secrets
 *.pem
 *.key
+
+# Logs
+logs/
+*.log
+
+# Coverage
+.coverage
+htmlcov/

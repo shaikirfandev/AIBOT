@@ -97,7 +97,8 @@ def check_prerequisites():
     # Check Ollama
     try:
         import requests
-        resp = requests.get("http://localhost:11434/api/tags", timeout=3)
+        resp = requests.get("http://localhost:11434/api/tags", timeout=3,
+                            proxies={"http": None, "https": None})
         models = [m["name"] for m in resp.json().get("models", [])]
         print(f"  ✓ Ollama ({len(models)} models loaded)")
     except Exception as exc:

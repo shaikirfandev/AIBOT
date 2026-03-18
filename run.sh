@@ -46,6 +46,10 @@ export BB_STEP_TIMEOUT="${BB_STEP_TIMEOUT:-300}"    # 5 min per recon tool
 export BB_CHUNK_TIMEOUT="${BB_CHUNK_TIMEOUT:-600}"  # 10 min per LLM chunk
 export BB_MAX_FAILURES="${BB_MAX_FAILURES:-3}"      # skip file after 3 failures
 
+# Bypass any system proxy (Burp/Charles) for local Ollama
+export NO_PROXY="localhost,127.0.0.1"
+export no_proxy="localhost,127.0.0.1"
+
 echo -e "${CYAN}"
 echo "  ╔══════════════════════════════════════╗"
 echo "  ║  BBHunter Pipeline Runner            ║"
